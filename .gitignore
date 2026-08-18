@@ -1,0 +1,67 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+tts-venv/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# VELES OS generated artifacts
+runtime/
+images/
+iso/
+*.qcow2
+*.qcow2.*
+*.img
+*.raw
+*.iso
+
+# Test / cache
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Logs
+*.log
+logs/
+
+# Local configuration / secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+
+# Editor / OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*~
+
+# Legacy development backups
+*.bak
+*.bak*
+*_backup
+*.before-*

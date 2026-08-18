@@ -1,0 +1,419 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Veles Operations Center
+{% endblock %}
+
+
+{% block application %}
+<span data-i18n="nav.overview">OVERVIEW</span>
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="veles-dashboard">
+
+
+    <div class="dashboard-header">
+
+        <div class="dashboard-header-main">
+
+            <div class="dashboard-header-mark">
+                ◉
+            </div>
+
+            <div>
+
+                <h1>
+                    VELES
+                </h1>
+
+                <p data-i18n="dashboard.title">
+                    AI Operations Control Center
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="dashboard-header-status">
+
+            <span class="dashboard-status-dot"></span>
+
+            <span data-i18n="dashboard.system_operational">
+                SYSTEM OPERATIONAL
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="operations-map">
+
+
+        <div
+            class="operations-map-label"
+            data-i18n="dashboard.operations_map"
+        >
+            OPERATIONS MAP
+        </div>
+
+
+        <div class="operations-map-grid"></div>
+
+
+        <div class="floating-clouds">
+
+            <div class="cloud-particle cloud-1"></div>
+            <div class="cloud-particle cloud-2"></div>
+            <div class="cloud-particle cloud-3"></div>
+            <div class="cloud-particle cloud-4"></div>
+            <div class="cloud-particle cloud-5"></div>
+            <div class="cloud-particle cloud-6"></div>
+            <div class="cloud-particle cloud-7"></div>
+            <div class="cloud-particle cloud-8"></div>
+
+        </div>
+
+
+        <svg class="connection-lines">
+
+            <line class="data-line" data-target="intelligence"></line>
+            <line class="data-line" data-target="infrastructure"></line>
+            <line class="data-line" data-target="delivery"></line>
+            <line class="data-line" data-target="cloud"></line>
+            <line class="data-line" data-target="security"></line>
+            <line class="data-line" data-target="automation"></line>
+            <line class="data-line" data-target="observability"></line>
+            <line class="data-line" data-target="network"></line>
+            <line class="data-line" data-target="platform"></line>
+            <line class="data-line" data-target="data"></line>
+            <line class="data-line" data-target="testing"></line>
+            <line class="data-line" data-target="access"></line>
+
+        </svg>
+
+
+        <a href="/chat" class="node intelligence">
+
+            <span class="node-icon">
+                🧠
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.intelligence"
+            >
+                INTELLIGENCE
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.intelligence.status }}"
+            >
+                {{ modules.intelligence.status }}
+            </div>
+
+        </a>
+
+
+        <a href="/infrastructure" class="node infrastructure">
+
+            <span class="node-icon">
+                🖥
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.infrastructure"
+            >
+                INFRASTRUCTURE
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.infrastructure.status }}"
+            >
+                {{ modules.infrastructure.status }}
+            </div>
+
+        </a>
+
+
+        <div
+            class="node delivery"
+            onclick="window.location.href='/delivery'"
+        >
+
+            <span class="node-icon">
+                📦
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.delivery"
+            >
+                DELIVERY
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.delivery.status }}"
+            >
+                {{ modules.delivery.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node core">
+
+            <span class="node-core-symbol">
+                ◉
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="brand.name"
+            >
+                VELES
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="dashboard.core_online"
+            >
+                CORE ONLINE
+            </div>
+
+        </div>
+
+
+        <div class="node cloud">
+
+            <span class="node-icon">
+                ☁
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.cloud"
+            >
+                CLOUD
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.cloud.status }}"
+            >
+                {{ modules.cloud.status }}
+            </div>
+
+        </div>
+
+
+        <div
+            class="node security"
+            onclick="window.location.href='{{ url_for("security_view") }}'"
+        >
+
+            <span class="node-icon">
+                🔐
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.security"
+            >
+                SECURITY
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.security.status }}"
+            >
+                {{ modules.security.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node automation">
+
+            <span class="node-icon">
+                ⚙
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.automation"
+            >
+                AUTOMATION
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.automation.status }}"
+            >
+                {{ modules.automation.status }}
+            </div>
+
+        </div>
+
+
+        <div
+            class="node observability"
+            onclick="window.location.href='{{ url_for("monitoring_view") }}'"
+        >
+
+            <span class="node-icon">
+                📊
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.monitoring"
+            >
+                MONITORING
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.observability.status }}"
+            >
+                {{ modules.observability.status }}
+            </div>
+
+        </div>
+
+
+        <div
+            class="node network"
+            onclick="window.location.href='{{ url_for("network_view") }}'"
+        >
+
+            <span class="node-icon">
+                🌐
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.network"
+            >
+                NETWORK
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.network.status }}"
+            >
+                {{ modules.network.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node platform">
+
+            <span class="node-icon">
+                🏗
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.platform"
+            >
+                PLATFORM
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.platform.status }}"
+            >
+                {{ modules.platform.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node data">
+
+            <span class="node-icon">
+                🗄
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.data"
+            >
+                DATA
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.data.status }}"
+            >
+                {{ modules.data.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node testing">
+
+            <span class="node-icon">
+                🧪
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.testing"
+            >
+                TESTING
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.testing.status }}"
+            >
+                {{ modules.testing.status }}
+            </div>
+
+        </div>
+
+
+        <div class="node access">
+
+            <span class="node-icon">
+                🔐
+            </span>
+
+            <span
+                class="node-name"
+                data-i18n="dashboard.access"
+            >
+                ACCESS
+            </span>
+
+            <div
+                class="node-status"
+                data-i18n="status.{{ modules.access.status }}"
+            >
+                {{ modules.access.status }}
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+</div>
+
+
+{% endblock %}

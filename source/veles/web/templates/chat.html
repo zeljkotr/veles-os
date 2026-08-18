@@ -1,0 +1,227 @@
+{% extends "base.html" %}
+
+
+{% block title %}
+Veles AI Chat
+{% endblock %}
+
+
+{% block application %}
+AI OPERATIONS ASSISTANT
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="chat-container">
+
+
+    <!-- =================================================
+         CHAT HEADER
+         ================================================= -->
+
+    <div class="chat-header">
+
+
+        <div class="chat-header-info">
+
+            <h1>
+                Veles AI Core
+            </h1>
+
+            <p>
+                Lokalni AI Operations Assistant
+            </p>
+
+        </div>
+
+
+        <div class="status-indicator">
+
+            <span class="status-dot"></span>
+
+            ONLINE
+
+        </div>
+
+
+    </div>
+
+
+    <!-- =================================================
+         CHAT HISTORY
+         ================================================= -->
+
+    <div
+        class="chat-window"
+        id="chat-window"
+    >
+
+
+        {% if history %}
+
+
+            {% for message in history %}
+
+
+                <div
+                    class="message {{ message.role }}"
+                >
+
+
+                    <div class="message-role">
+
+                        {% if message.role == "user" %}
+
+                            TI
+
+                        {% else %}
+
+                            VELES
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="message-text">
+
+                        {{ message.text | markdown | safe }}
+
+                    </div>
+
+
+                </div>
+
+
+            {% endfor %}
+
+
+        {% else %}
+
+
+            <div class="empty-chat">
+
+                <h2>
+                    Veles spreman
+                </h2>
+
+                <p>
+                    Postavi pitanje ili zadaj komandu.
+                </p>
+
+            </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+    <!-- =================================================
+         CHAT INPUT
+         ================================================= -->
+
+    <div class="chat-input">
+
+
+        <form
+            method="POST"
+            action="{{ url_for('ask') }}"
+            id="chat-form"
+        >
+
+
+            <textarea
+                id="question"
+                name="question"
+                placeholder="Unesi komandu ili pitanje..."
+                autocomplete="off"
+                rows="3"
+            ></textarea>
+
+
+            <div class="chat-buttons">
+
+
+                <button
+                    type="submit"
+                    class="btn-primary"
+                >
+                    Pošalji
+                </button>
+
+
+                <button
+                    type="button"
+                    id="voice-button"
+                    class="btn-secondary"
+                >
+                    🎤 Veles
+                </button>
+
+
+                <button
+                    type="button"
+                    id="new-chat-button"
+                    class="btn-secondary"
+                >
+                    Novi razgovor
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =====================================================
+     THINKING OVERLAY
+     ===================================================== -->
+
+<div id="thinking-overlay">
+
+    <div class="thinking-box">
+
+        <div class="thinking-orb"></div>
+
+        <div class="thinking-text">
+            Veles razmišlja...
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     AUDIO
+     ===================================================== -->
+
+{% if audio_url %}
+
+<audio
+    id="veles-audio"
+    autoplay
+>
+
+    <source
+        src="{{ audio_url }}"
+        type="audio/wav"
+    >
+
+</audio>
+
+{% endif %}
+
+
+{% endblock %}

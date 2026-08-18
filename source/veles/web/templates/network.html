@@ -1,0 +1,248 @@
+{% extends "base.html" %}
+
+{% block title %}
+Veles Network
+{% endblock %}
+
+{% block extra_css %}
+
+<link rel="stylesheet"
+      href="{{ url_for('static', filename='css/infrastructure.css') }}">
+
+{% endblock %}
+
+{% block content %}
+
+<div class="infra-page">
+
+    <header class="infra-header">
+
+        <h1 data-i18n="network.title">
+            🌐 NETWORK
+        </h1>
+
+        <p data-i18n="network.subtitle">
+            Network connectivity and system topology
+        </p>
+
+    </header>
+
+
+    <!-- NETWORK OVERVIEW -->
+
+    <section class="resource-overview">
+
+        <h2 data-i18n="network.overview">
+            NETWORK OVERVIEW
+        </h2>
+
+
+        <div class="resource-grid">
+
+            <div class="resource-card">
+
+                <h3 data-i18n="system.hostname">
+                    HOSTNAME
+                </h3>
+
+                <div
+                    class="resource-number"
+                    style="font-size:20px;"
+                >
+                    {{ data.hostname }}
+                </div>
+
+            </div>
+
+
+            <div class="resource-card">
+
+                <h3 data-i18n="network.interfaces">
+                    INTERFACES
+                </h3>
+
+                <div class="resource-number">
+                    {{ data.interfaces|length }}
+                </div>
+
+            </div>
+
+
+            <div class="resource-card">
+
+                <h3 data-i18n="network.routes">
+                    ROUTES
+                </h3>
+
+                <div class="resource-number">
+                    {{ data.routes|length }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- INTERFACES -->
+
+    <section class="inventory-panel">
+
+        <h2 data-i18n="network.interfaces_title">
+            NETWORK INTERFACES
+        </h2>
+
+
+        <div class="resource-list">
+
+            {% for interface in data.interfaces %}
+
+                <div class="resource-item">
+
+                    <div class="resource-icon">
+                        🌐
+                    </div>
+
+
+                    <div class="resource-info">
+
+                        <h2>
+                            {{ interface.interface }}
+                        </h2>
+
+
+                        <div class="resource-meta">
+
+                            <div>
+
+                                <label data-i18n="network.address">
+                                    ADDRESS
+                                </label>
+
+                                <strong>
+                                    {{ interface.address }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- ROUTING -->
+
+    <section class="inventory-panel">
+
+        <h2 data-i18n="network.routing_table">
+            ROUTING TABLE
+        </h2>
+
+
+        <div class="resource-list">
+
+            {% for route in data.routes %}
+
+                <div class="resource-item">
+
+                    <div class="resource-icon">
+                        🛣
+                    </div>
+
+
+                    <div class="resource-info">
+
+                        <h2 data-i18n="network.route">
+                            ROUTE
+                        </h2>
+
+
+                        <div class="resource-meta">
+
+                            <div>
+
+                                <label data-i18n="network.route">
+                                    ROUTE
+                                </label>
+
+                                <strong>
+                                    {{ route }}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+    </section>
+
+
+    <!-- DNS -->
+
+    <section class="inventory-panel">
+
+        <h2 data-i18n="network.dns">
+            DNS
+        </h2>
+
+
+        <div class="resource-list">
+
+            <div class="resource-item">
+
+                <div class="resource-icon">
+                    🔎
+                </div>
+
+
+                <div class="resource-info">
+
+                    <h2 data-i18n="network.resolver_status">
+                        RESOLVER STATUS
+                    </h2>
+
+
+                    <div class="resource-meta">
+
+                        <div>
+
+                            <label data-i18n="network.system_dns">
+                                SYSTEM DNS
+                            </label>
+
+                            <strong>
+                                {{ data.dns or "Unavailable" }}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+</div>
+
+{% endblock %}

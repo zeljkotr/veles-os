@@ -1,0 +1,1625 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css'
+    ) }}"
+>
+
+<style>
+
+.check-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.check-result-item {
+    display: grid;
+    grid-template-columns: 55px 180px 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 20px;
+}
+
+.check-result-icon {
+    font-size: 28px;
+    text-align: center;
+}
+
+.check-result-info h3 {
+    margin: 0 0 6px 0;
+    font-size: 16px;
+}
+
+.check-result-info .check-type {
+    font-size: 12px;
+    opacity: 0.65;
+    letter-spacing: 1px;
+}
+
+.check-result-meta {
+    display: grid;
+    grid-template-columns: 140px 140px minmax(180px, 1fr);
+    gap: 20px;
+    align-items: center;
+}
+
+.check-result-meta label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.check-result-meta strong {
+    display: block;
+    word-break: break-word;
+}
+
+.monitoring-status {
+    font-weight: 700;
+}
+
+.monitoring-status-healthy {
+    font-weight: 700;
+}
+
+.monitoring-status-warning {
+    font-weight: 700;
+}
+
+.monitoring-status-critical {
+    font-weight: 700;
+}
+
+.monitoring-status-unknown {
+    font-weight: 700;
+}
+
+.monitoring-last-check {
+    font-size: 18px;
+    word-break: break-word;
+}
+
+.monitoring-chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 360px;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+}
+
+.monitoring-chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.monitoring-chart-title {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.monitoring-chart-subtitle {
+    font-size: 11px;
+    opacity: 0.55;
+    letter-spacing: 0.7px;
+}
+
+.monitoring-chart-wrapper {
+    position: relative;
+    width: 100%;
+    height: 280px;
+}
+
+#monitoring-response-chart {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.monitoring-chart-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 280px;
+    text-align: center;
+    font-size: 13px;
+    opacity: 0.6;
+}
+
+.monitoring-chart-legend {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 12px;
+    font-size: 11px;
+    opacity: 0.65;
+}
+
+.monitoring-chart-stat {
+    display: flex;
+    gap: 6px;
+}
+
+.monitoring-chart-stat strong {
+    opacity: 1;
+}
+
+.monitoring-history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.monitoring-history-item {
+    display: grid;
+    grid-template-columns:
+        45px
+        minmax(150px, 1fr)
+        130px
+        120px
+        minmax(180px, 1.5fr);
+    align-items: center;
+    gap: 18px;
+    padding: 15px 18px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    background: rgba(255,255,255,0.02);
+}
+
+.monitoring-history-icon {
+    font-size: 22px;
+    text-align: center;
+}
+
+.monitoring-history-time {
+    font-size: 13px;
+    opacity: 0.8;
+    word-break: break-word;
+}
+
+.monitoring-history-check {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+}
+
+.monitoring-history-response {
+    font-size: 13px;
+}
+
+.monitoring-history-message {
+    font-size: 13px;
+    word-break: break-word;
+}
+
+.monitoring-history-label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 10px;
+    letter-spacing: 1px;
+    opacity: 0.55;
+}
+
+.monitoring-history-status {
+    font-weight: 700;
+}
+
+.monitoring-history-online {
+    color: #55d68a;
+}
+
+.monitoring-history-offline {
+    color: #ef6464;
+}
+
+.monitoring-history-warning {
+    color: #f0b84b;
+}
+
+.monitoring-history-unknown {
+    color: #aaa;
+}
+
+@media (max-width: 1000px) {
+
+    .check-result-item {
+        grid-template-columns: 45px 1fr;
+    }
+
+    .check-result-meta {
+        grid-column: 1 / -1;
+        grid-template-columns:
+            1fr
+            1fr
+            minmax(180px, 2fr);
+    }
+
+    .monitoring-history-item {
+        grid-template-columns:
+            40px
+            1fr
+            1fr
+            1fr;
+    }
+
+    .monitoring-history-message {
+        grid-column: 2 / -1;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    .check-result-meta {
+        grid-template-columns: 1fr;
+    }
+
+    .monitoring-history-item {
+        grid-template-columns:
+            40px
+            1fr;
+    }
+
+    .monitoring-history-check,
+    .monitoring-history-response,
+    .monitoring-history-message {
+        grid-column: 2;
+    }
+
+    .monitoring-chart-container {
+        padding: 14px;
+    }
+
+    .monitoring-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+}
+
+</style>
+
+{% endblock %}
+
+
+{% block title %}
+
+Veles Resource Monitor
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="infra-page">
+
+
+    <!-- ====================================== -->
+    <!-- HEADER -->
+    <!-- ====================================== -->
+
+    <header class="infra-header">
+
+        <h1 data-i18n="monitoring.resource_monitor">
+            📊 RESOURCE MONITOR
+        </h1>
+
+        <p data-i18n="monitoring.health_monitoring">
+            Resource health monitoring
+        </p>
+
+    </header>
+
+
+    {% if resource %}
+
+
+        <!-- ====================================== -->
+        <!-- RESOURCE INFORMATION -->
+        <!-- ====================================== -->
+
+        <section class="inventory-panel">
+
+            <h2 data-i18n="monitoring.resource">
+                RESOURCE
+            </h2>
+
+
+            <div class="server-card">
+
+                <div class="server-title">
+
+                    <h3>
+
+                        {% if resource.type == "server" %}
+                            🖥
+                        {% elif resource.type == "container" %}
+                            🐳
+                        {% elif resource.type == "agent" %}
+                            🤖
+                        {% elif resource.type == "device" %}
+                            📡
+                        {% else %}
+                            ☁
+                        {% endif %}
+
+                        {{ resource.name }}
+
+                    </h3>
+
+                    <span>
+                        {{ resource.status }}
+                    </span>
+
+                </div>
+
+
+                <div class="server-grid">
+
+                    <div>
+                        <label data-i18n="monitoring.id">ID</label>
+                        <strong>{{ resource.id }}</strong>
+                    </div>
+
+                    <div>
+                        <label data-i18n="monitoring.type">TYPE</label>
+                        <strong>{{ resource.type }}</strong>
+                    </div>
+
+                    <div>
+                        <label data-i18n="monitoring.host">HOST</label>
+                        <strong>{{ resource.host or "-" }}</strong>
+                    </div>
+
+                    <div>
+                        <label data-i18n="monitoring.port">PORT</label>
+                        <strong>{{ resource.port or "-" }}</strong>
+                    </div>
+
+                    <div>
+                        <label data-i18n="monitoring.username">USERNAME</label>
+                        <strong>{{ resource.username or "-" }}</strong>
+                    </div>
+
+                    <div>
+                        <label data-i18n="monitoring.group">GROUP</label>
+                        <strong>{{ resource.group or "-" }}</strong>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- MONITORING ACTIONS -->
+        <!-- ====================================== -->
+
+        <section class="infra-actions">
+
+            <h4 data-i18n="monitoring.monitoring">
+                MONITORING
+            </h4>
+
+
+            <div class="action-row">
+
+                <a
+                    href="{{ url_for(
+                        'monitor_resource',
+                        resource_id=resource.id,
+                        check='1'
+                    ) }}"
+                    class="infra-button"
+                    data-i18n="monitoring.run_check"
+                >
+                    ▶ RUN CHECK
+                </a>
+
+
+                <a
+                    href="{{ url_for(
+                        'monitoring_view'
+                    ) }}"
+                    class="infra-button"
+                    data-i18n="monitoring.back"
+                >
+                    ⬅ MONITORING
+                </a>
+
+
+                <a
+                    href="{{ url_for(
+                        'resource_detail',
+                        resource_id=resource.id,
+                        from='monitoring'
+                    ) }}"
+                    class="infra-button"
+                    data-i18n="monitoring.resource_detail"
+                >
+                    RESOURCE DETAIL
+                </a>
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- HEALTH STATUS -->
+        <!-- ====================================== -->
+
+        <section class="resource-overview">
+
+            <h2 data-i18n="monitoring.health_status">
+                HEALTH STATUS
+            </h2>
+
+
+            <div class="resource-grid">
+
+
+                <div class="resource-card">
+
+                    <h3 data-i18n="monitoring.status_label">
+                        STATUS
+                    </h3>
+
+
+                    <div class="resource-number">
+
+                        {% if health %}
+
+                            {% if health.status == "healthy" %}
+                                🟢
+                            {% elif health.status == "critical" %}
+                                🔴
+                            {% elif health.status == "warning" %}
+                                🟡
+                            {% else %}
+                                ⚪
+                            {% endif %}
+
+                        {% else %}
+
+                            ⚪
+
+                        {% endif %}
+
+                    </div>
+
+
+                    <div class="monitoring-status">
+
+                        {% if health %}
+
+                            {% if health.status == "healthy" %}
+
+                                <span data-i18n="monitoring.healthy">
+                                    HEALTHY
+                                </span>
+
+                            {% elif health.status == "critical" %}
+
+                                <span data-i18n="monitoring.critical">
+                                    CRITICAL
+                                </span>
+
+                            {% elif health.status == "warning" %}
+
+                                <span data-i18n="monitoring.warning">
+                                    WARNING
+                                </span>
+
+                            {% else %}
+
+                                <span data-i18n="monitoring.unknown">
+                                    UNKNOWN
+                                </span>
+
+                            {% endif %}
+
+                        {% else %}
+
+                            <span data-i18n="monitoring.unknown">
+                                UNKNOWN
+                            </span>
+
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="resource-card">
+
+                    <h3 data-i18n="monitoring.checks">
+                        CHECKS
+                    </h3>
+
+                    <div class="resource-number">
+
+                        {% if health %}
+                            {{ health.checks|length }}
+                        {% else %}
+                            0
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+                <div class="resource-card">
+
+                    <h3 data-i18n="monitoring.last_check">
+                        LAST CHECK
+                    </h3>
+
+                    <div class="resource-number monitoring-last-check">
+
+                        {% if health %}
+                            {{ health.last_check }}
+                        {% else %}
+                            —
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- CURRENT CHECK RESULTS -->
+        <!-- ====================================== -->
+
+        <section class="inventory-panel">
+
+            <h2 data-i18n="monitoring.current_check_results">
+                CHECK RESULTS
+            </h2>
+
+
+            {% if health and health.checks %}
+
+                <div class="check-results-list">
+
+
+                    {% for check in health.checks %}
+
+
+                        <div class="resource-item check-result-item">
+
+
+                            <div class="check-result-icon">
+
+                                {% if check.status == "online" %}
+                                    🟢
+                                {% elif check.status == "offline" %}
+                                    🔴
+                                {% elif check.status == "unknown" %}
+                                    ⚪
+                                {% else %}
+                                    🟡
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="check-result-info">
+
+                                <h3>
+                                    {{ check.check_type|upper }}
+                                </h3>
+
+                                <div
+                                    class="check-type"
+                                    data-i18n="monitoring.check_type"
+                                >
+                                    CHECK TYPE
+                                </div>
+
+                            </div>
+
+
+                            <div class="check-result-meta">
+
+
+                                <div>
+
+                                    <label data-i18n="monitoring.status_label">
+                                        STATUS
+                                    </label>
+
+                                    <strong>
+
+                                        {% if check.status == "online" %}
+
+                                            <span class="monitoring-status-healthy">
+                                                🟢
+                                                <span data-i18n="monitoring.online">
+                                                    ONLINE
+                                                </span>
+                                            </span>
+
+                                        {% elif check.status == "offline" %}
+
+                                            <span class="monitoring-status-critical">
+                                                🔴
+                                                <span data-i18n="monitoring.offline">
+                                                    OFFLINE
+                                                </span>
+                                            </span>
+
+                                        {% elif check.status == "unknown" %}
+
+                                            <span class="monitoring-status-unknown">
+                                                ⚪
+                                                <span data-i18n="monitoring.unknown">
+                                                    UNKNOWN
+                                                </span>
+                                            </span>
+
+                                        {% else %}
+
+                                            <span class="monitoring-status-warning">
+                                                🟡
+                                                {{ check.status|upper }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <label data-i18n="monitoring.response">
+                                        RESPONSE
+                                    </label>
+
+                                    <strong>
+
+                                        {% if check.response_time_ms is not none %}
+
+                                            {{ check.response_time_ms }} ms
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <div>
+
+                                    <label data-i18n="monitoring.message">
+                                        MESSAGE
+                                    </label>
+
+                                    <strong>
+                                        {{ check.message or "—" }}
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div
+                    class="empty-state"
+                    data-i18n="monitoring.resource_not_checked"
+                >
+                    ⚪ Resource has not been checked yet.
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- RESPONSE TIME GRAPH -->
+        <!-- ====================================== -->
+
+        <section class="inventory-panel">
+
+            <h2 data-i18n="monitoring.response_time">
+                RESPONSE TIME
+            </h2>
+
+
+            <div class="monitoring-chart-container">
+
+
+                <div class="monitoring-chart-header">
+
+                    <div>
+
+                        <div
+                            class="monitoring-chart-title"
+                            data-i18n="monitoring.response_time_history"
+                        >
+                            RESPONSE TIME HISTORY
+                        </div>
+
+                        <div class="monitoring-chart-subtitle">
+
+                            <span data-i18n="monitoring.last_checks">
+                                LAST
+                            </span>
+
+                            {{ history|length }}
+
+                            <span data-i18n="monitoring.monitoring_checks">
+                                MONITORING CHECKS
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                {% if history %}
+
+                    <div class="monitoring-chart-wrapper">
+
+                        <canvas
+                            id="monitoring-response-chart"
+                        ></canvas>
+
+                    </div>
+
+
+                    <div class="monitoring-chart-legend">
+
+                        <div class="monitoring-chart-stat">
+
+                            <span data-i18n="monitoring.checks_count">
+                                CHECKS:
+                            </span>
+
+                            <strong>
+                                {{ history|length }}
+                            </strong>
+
+                        </div>
+
+
+                        <div class="monitoring-chart-stat">
+
+                            <span data-i18n="monitoring.latest">
+                                LATEST:
+                            </span>
+
+                            <strong id="monitoring-chart-latest">
+                                —
+                            </strong>
+
+                        </div>
+
+
+                        <div class="monitoring-chart-stat">
+
+                            <span data-i18n="monitoring.average">
+                                AVERAGE:
+                            </span>
+
+                            <strong id="monitoring-chart-average">
+                                —
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                {% else %}
+
+                    <div
+                        class="monitoring-chart-empty"
+                        data-i18n="monitoring.no_response_data"
+                    >
+                        ⚪ No response-time data available yet.
+                    </div>
+
+                {% endif %}
+
+
+            </div>
+
+        </section>
+
+
+        <!-- ====================================== -->
+        <!-- MONITORING HISTORY -->
+        <!-- ====================================== -->
+
+        <section class="inventory-panel">
+
+            <h2 data-i18n="monitoring.history">
+                MONITORING HISTORY
+            </h2>
+
+
+            {% if history %}
+
+
+                <div class="monitoring-history-list">
+
+
+                    {% for entry in history %}
+
+
+                        <div class="monitoring-history-item">
+
+
+                            <div class="monitoring-history-icon">
+
+                                {% if entry.status == "online" %}
+                                    🟢
+                                {% elif entry.status == "offline" %}
+                                    🔴
+                                {% elif entry.status == "warning" %}
+                                    🟡
+                                {% else %}
+                                    ⚪
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="monitoring-history-time">
+
+                                <span
+                                    class="monitoring-history-label"
+                                    data-i18n="monitoring.time"
+                                >
+                                    TIME
+                                </span>
+
+                                {{ entry.timestamp }}
+
+                            </div>
+
+
+                            <div class="monitoring-history-check">
+
+                                <span
+                                    class="monitoring-history-label"
+                                    data-i18n="monitoring.check"
+                                >
+                                    CHECK
+                                </span>
+
+                                {{ entry.check_type|upper }}
+
+                            </div>
+
+
+                            <div>
+
+                                <span
+                                    class="monitoring-history-label"
+                                    data-i18n="monitoring.status_label"
+                                >
+                                    STATUS
+                                </span>
+
+
+                                {% if entry.status == "online" %}
+
+                                    <span class="
+                                        monitoring-history-status
+                                        monitoring-history-online
+                                    "
+                                    data-i18n="monitoring.online">
+                                        ONLINE
+                                    </span>
+
+                                {% elif entry.status == "offline" %}
+
+                                    <span class="
+                                        monitoring-history-status
+                                        monitoring-history-offline
+                                    "
+                                    data-i18n="monitoring.offline">
+                                        OFFLINE
+                                    </span>
+
+                                {% elif entry.status == "warning" %}
+
+                                    <span class="
+                                        monitoring-history-status
+                                        monitoring-history-warning
+                                    "
+                                    data-i18n="monitoring.warning">
+                                        WARNING
+                                    </span>
+
+                                {% else %}
+
+                                    <span class="
+                                        monitoring-history-status
+                                        monitoring-history-unknown
+                                    "
+                                    data-i18n="monitoring.unknown">
+                                        {{ entry.status|upper }}
+                                    </span>
+
+                                {% endif %}
+
+
+                                <div style="margin-top: 5px;">
+
+                                    {% if entry.response_time_ms is not none %}
+
+                                        {{ entry.response_time_ms }} ms
+
+                                    {% else %}
+
+                                        —
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="monitoring-history-message">
+
+                                <span
+                                    class="monitoring-history-label"
+                                    data-i18n="monitoring.message"
+                                >
+                                    MESSAGE
+                                </span>
+
+                                {{ entry.message or "—" }}
+
+                            </div>
+
+
+                        </div>
+
+
+                    {% endfor %}
+
+
+                </div>
+
+
+            {% else %}
+
+
+                <div
+                    class="empty-state"
+                    data-i18n="monitoring.no_history"
+                >
+                    ⚪ No monitoring history available yet.
+                </div>
+
+
+            {% endif %}
+
+
+        </section>
+
+
+    {% else %}
+
+
+        <div
+            class="empty-state"
+            data-i18n="monitoring.resource_not_found"
+        >
+            ⚠ Resource not found.
+        </div>
+
+
+    {% endif %}
+
+
+</div>
+
+
+{% if resource and history %}
+
+<script>
+
+(function () {
+
+    "use strict";
+
+    const history = {{ history|tojson }};
+
+    const canvas =
+        document.getElementById(
+            "monitoring-response-chart"
+        );
+
+    if (!canvas || !history.length) {
+        return;
+    }
+
+    const context =
+        canvas.getContext("2d");
+
+    if (!context) {
+        return;
+    }
+
+    const points = history
+        .map(function (entry, index) {
+
+            let value =
+                Number(
+                    entry.response_time_ms
+                );
+
+            if (!Number.isFinite(value)) {
+                return null;
+            }
+
+            return {
+                index: index,
+                value: value,
+                timestamp:
+                    entry.timestamp || "",
+                status:
+                    entry.status || "unknown"
+            };
+
+        })
+        .filter(function (item) {
+            return item !== null;
+        });
+
+    const latestElement =
+        document.getElementById(
+            "monitoring-chart-latest"
+        );
+
+    const averageElement =
+        document.getElementById(
+            "monitoring-chart-average"
+        );
+
+    if (!points.length) {
+
+        if (latestElement) {
+            latestElement.textContent = "—";
+        }
+
+        if (averageElement) {
+            averageElement.textContent = "—";
+        }
+
+        return;
+    }
+
+    const values =
+        points.map(function (point) {
+            return point.value;
+        });
+
+    const latest =
+        values[values.length - 1];
+
+    const average =
+        values.reduce(
+            function (sum, value) {
+                return sum + value;
+            },
+            0
+        ) / values.length;
+
+    if (latestElement) {
+        latestElement.textContent =
+            latest.toFixed(1) + " ms";
+    }
+
+    if (averageElement) {
+        averageElement.textContent =
+            average.toFixed(1) + " ms";
+    }
+
+    function resizeCanvas() {
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+        const ratio =
+            window.devicePixelRatio || 1;
+
+        canvas.width =
+            Math.max(
+                1,
+                Math.floor(
+                    rect.width * ratio
+                )
+            );
+
+        canvas.height =
+            Math.max(
+                1,
+                Math.floor(
+                    rect.height * ratio
+                )
+            );
+
+        context.setTransform(
+            ratio,
+            0,
+            0,
+            ratio,
+            0,
+            0
+        );
+
+        drawChart(
+            rect.width,
+            rect.height
+        );
+
+    }
+
+    function drawChart(
+        width,
+        height
+    ) {
+
+        context.clearRect(
+            0,
+            0,
+            width,
+            height
+        );
+
+        const padding = {
+            top: 20,
+            right: 20,
+            bottom: 45,
+            left: 55
+        };
+
+        const chartWidth =
+            width -
+            padding.left -
+            padding.right;
+
+        const chartHeight =
+            height -
+            padding.top -
+            padding.bottom;
+
+        if (
+            chartWidth <= 0 ||
+            chartHeight <= 0
+        ) {
+            return;
+        }
+
+        let maxValue =
+            Math.max.apply(
+                null,
+                values
+            );
+
+        let minValue =
+            Math.min.apply(
+                null,
+                values
+            );
+
+        if (maxValue === minValue) {
+
+            if (maxValue === 0) {
+
+                maxValue = 10;
+
+            } else {
+
+                maxValue =
+                    maxValue * 1.25;
+
+                minValue =
+                    Math.max(
+                        0,
+                        minValue * 0.75
+                    );
+
+            }
+
+        }
+
+        if (minValue > 0) {
+            minValue = 0;
+        }
+
+        const range =
+            maxValue - minValue;
+
+        context.save();
+
+        context.lineWidth = 1;
+
+        context.strokeStyle =
+            "rgba(255,255,255,0.07)";
+
+        context.fillStyle =
+            "rgba(255,255,255,0.5)";
+
+        context.font =
+            "11px sans-serif";
+
+        const gridLines = 5;
+
+        for (
+            let i = 0;
+            i <= gridLines;
+            i++
+        ) {
+
+            const ratio =
+                i / gridLines;
+
+            const y =
+                padding.top +
+                chartHeight -
+                (
+                    ratio *
+                    chartHeight
+                );
+
+            context.beginPath();
+
+            context.moveTo(
+                padding.left,
+                y
+            );
+
+            context.lineTo(
+                width - padding.right,
+                y
+            );
+
+            context.stroke();
+
+            const value =
+                minValue +
+                (
+                    ratio *
+                    range
+                );
+
+            context.textAlign = "right";
+
+            context.textBaseline = "middle";
+
+            context.fillText(
+                value.toFixed(
+                    value >= 100
+                        ? 0
+                        : 1
+                ) + " ms",
+                padding.left - 8,
+                y
+            );
+
+        }
+
+        context.strokeStyle =
+            "rgba(255,255,255,0.12)";
+
+        context.beginPath();
+
+        context.moveTo(
+            padding.left,
+            padding.top + chartHeight
+        );
+
+        context.lineTo(
+            width - padding.right,
+            padding.top + chartHeight
+        );
+
+        context.stroke();
+
+        const pointCoordinates =
+            points.map(function (point) {
+
+                let x;
+
+                if (points.length === 1) {
+
+                    x =
+                        padding.left +
+                        chartWidth / 2;
+
+                } else {
+
+                    x =
+                        padding.left +
+                        (
+                            point.index /
+                            (
+                                history.length - 1
+                            )
+                        ) *
+                        chartWidth;
+
+                }
+
+                const normalized =
+                    (
+                        point.value -
+                        minValue
+                    ) /
+                    range;
+
+                const y =
+                    padding.top +
+                    chartHeight -
+                    (
+                        normalized *
+                        chartHeight
+                    );
+
+                return {
+                    x: x,
+                    y: y,
+                    value: point.value,
+                    timestamp:
+                        point.timestamp,
+                    status:
+                        point.status
+                };
+
+            });
+
+        if (pointCoordinates.length > 1) {
+
+            context.beginPath();
+
+            context.moveTo(
+                pointCoordinates[0].x,
+                padding.top + chartHeight
+            );
+
+            pointCoordinates.forEach(
+                function (point) {
+
+                    context.lineTo(
+                        point.x,
+                        point.y
+                    );
+
+                }
+            );
+
+            context.lineTo(
+                pointCoordinates[
+                    pointCoordinates.length - 1
+                ].x,
+                padding.top + chartHeight
+            );
+
+            context.closePath();
+
+            context.fillStyle =
+                "rgba(255,255,255,0.04)";
+
+            context.fill();
+
+        }
+
+        if (pointCoordinates.length > 0) {
+
+            context.beginPath();
+
+            pointCoordinates.forEach(
+                function (point, index) {
+
+                    if (index === 0) {
+
+                        context.moveTo(
+                            point.x,
+                            point.y
+                        );
+
+                    } else {
+
+                        context.lineTo(
+                            point.x,
+                            point.y
+                        );
+
+                    }
+
+                }
+            );
+
+            context.lineWidth = 2;
+
+            context.strokeStyle =
+                "rgba(255,255,255,0.85)";
+
+            context.stroke();
+
+        }
+
+        pointCoordinates.forEach(
+            function (point) {
+
+                context.beginPath();
+
+                context.arc(
+                    point.x,
+                    point.y,
+                    4,
+                    0,
+                    Math.PI * 2
+                );
+
+                context.fillStyle =
+                    "rgba(255,255,255,0.95)";
+
+                context.fill();
+
+                context.lineWidth = 2;
+
+                context.strokeStyle =
+                    "rgba(0,0,0,0.35)";
+
+                context.stroke();
+
+            }
+        );
+
+        context.fillStyle =
+            "rgba(255,255,255,0.45)";
+
+        context.font =
+            "10px sans-serif";
+
+        context.textBaseline =
+            "top";
+
+        context.textAlign =
+            "center";
+
+        if (points.length > 0) {
+
+            const labelIndexes = [];
+
+            if (points.length <= 6) {
+
+                points.forEach(
+                    function (_, index) {
+                        labelIndexes.push(index);
+                    }
+                );
+
+            } else {
+
+                labelIndexes.push(0);
+
+                labelIndexes.push(
+                    Math.floor(
+                        points.length / 2
+                    )
+                );
+
+                labelIndexes.push(
+                    points.length - 1
+                );
+
+            }
+
+            labelIndexes.forEach(
+                function (index) {
+
+                    const point =
+                        pointCoordinates[index];
+
+                    if (!point) {
+                        return;
+                    }
+
+                    let text =
+                        points[index].timestamp;
+
+                    if (!text) {
+                        text =
+                            String(index + 1);
+                    }
+
+                    text =
+                        String(text);
+
+                    if (text.length > 16) {
+
+                        text =
+                            text.substring(
+                                0,
+                                16
+                            );
+
+                    }
+
+                    context.fillText(
+                        text,
+                        point.x,
+                        padding.top +
+                        chartHeight +
+                        10
+                    );
+
+                }
+            );
+
+        }
+
+        context.restore();
+
+    }
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+    resizeCanvas();
+
+})();
+
+</script>
+
+{% endif %}
+
+{% endblock %}
