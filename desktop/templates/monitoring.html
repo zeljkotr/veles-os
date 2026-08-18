@@ -1,0 +1,682 @@
+{% extends "base.html" %}
+
+
+{% block extra_css %}
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css'
+    ) }}"
+>
+
+{% endblock %}
+
+
+{% block title %}
+
+Veles Monitoring Center
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="infra-page">
+
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <div class="infra-header">
+
+        <h1 data-i18n="monitoring.title">
+            📊 MONITORING CENTER
+        </h1>
+
+        <p data-i18n="monitoring.subtitle">
+            Resource health monitoring
+        </p>
+
+    </div>
+
+
+    <!-- =====================================
+         ACTIONS
+    ====================================== -->
+
+    <div class="infra-actions">
+
+        <div class="action-row">
+
+            <a
+                href="{{ url_for('monitoring_check') }}"
+                class="infra-button"
+                data-i18n="monitoring.run_check"
+            >
+                ▶ RUN CHECK
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         MONITORING STATUS
+    ====================================== -->
+
+    <div class="resource-overview">
+
+        <h2 data-i18n="monitoring.status">
+            MONITORING STATUS
+        </h2>
+
+
+        {% set stats = namespace(
+            healthy=0,
+            failed=0,
+            warning=0,
+            unknown=0,
+            checked=0,
+            total_checks=0
+        ) %}
+
+
+        {% for resource in resources %}
+
+            {% set item = health.get(
+                resource.id|string
+            ) %}
+
+
+            {% if item %}
+
+                {% set stats.checked =
+                    stats.checked + 1
+                %}
+
+
+                {% set stats.total_checks =
+                    stats.total_checks +
+                    (item.checks|length)
+                %}
+
+
+                {% if item.status == "healthy" %}
+
+                    {% set stats.healthy =
+                        stats.healthy + 1
+                    %}
+
+
+                {% elif item.status == "critical" %}
+
+                    {% set stats.failed =
+                        stats.failed + 1
+                    %}
+
+
+                {% elif item.status == "warning" %}
+
+                    {% set stats.warning =
+                        stats.warning + 1
+                    %}
+
+
+                {% else %}
+
+                    {% set stats.unknown =
+                        stats.unknown + 1
+                    %}
+
+                {% endif %}
+
+            {% endif %}
+
+        {% endfor %}
+
+
+        <!-- =================================
+             STATUS CARDS
+        ================================== -->
+
+        <div class="monitoring-status">
+
+
+            <!-- RESOURCES -->
+
+            <div>
+
+                <label data-i18n="monitoring.resources">
+                    RESOURCES
+                </label>
+
+                <strong>
+                    {{ resources|length }}
+                </strong>
+
+            </div>
+
+
+            <!-- HEALTHY -->
+
+            <div>
+
+                <label data-i18n="monitoring.healthy">
+                    HEALTHY
+                </label>
+
+                <strong class="healthy">
+                    {{ stats.healthy }}
+                </strong>
+
+            </div>
+
+
+            <!-- WARNING -->
+
+            <div>
+
+                <label data-i18n="monitoring.warning">
+                    WARNING
+                </label>
+
+                <strong class="warning">
+                    {{ stats.warning }}
+                </strong>
+
+            </div>
+
+
+            <!-- FAILED -->
+
+            <div>
+
+                <label data-i18n="monitoring.failed">
+                    FAILED
+                </label>
+
+                <strong class="failed">
+                    {{ stats.failed }}
+                </strong>
+
+            </div>
+
+
+            <!-- CHECKED RESOURCES -->
+
+            <div>
+
+                <label data-i18n="monitoring.checked_resources">
+                    CHECKED RESOURCES
+                </label>
+
+                <strong>
+                    {{ stats.checked }}
+                </strong>
+
+            </div>
+
+
+            <!-- CHECK RESULTS -->
+
+            <div>
+
+                <label data-i18n="monitoring.check_results">
+                    CHECK RESULTS
+                </label>
+
+                <strong>
+                    {{ stats.total_checks }}
+                </strong>
+
+            </div>
+
+
+        </div>
+
+
+        <!-- =================================
+             NEXT AUTOMATIC CHECK
+        ================================== -->
+
+        <div class="monitoring-next-check">
+
+
+            <div class="next-check-info">
+
+                <label data-i18n="monitoring.next_automatic_check">
+                    NEXT AUTOMATIC CHECK
+                </label>
+
+                <strong
+                    id="monitoring-countdown"
+                >
+                    —
+                </strong>
+
+            </div>
+
+
+            <div class="next-check-meta">
+
+                <div>
+
+                    <label data-i18n="monitoring.last_monitoring_cycle">
+                        LAST MONITORING CYCLE
+                    </label>
+
+                    <span id="monitoring-last-check">
+
+                        {% if scheduler.last_check_at %}
+
+                            {{ scheduler.last_check_at }}
+
+                        {% else %}
+
+                            <span data-i18n="monitoring.not_run_yet">
+                                NOT RUN YET
+                            </span>
+
+                        {% endif %}
+
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <label data-i18n="monitoring.automatic_check_cycles">
+                        AUTOMATIC CHECK CYCLES
+                    </label>
+
+                    <span id="monitoring-cycle-count">
+
+                        {{ scheduler.check_count }}
+
+                    </span>
+
+                </div>
+
+
+                <div>
+
+                    <label data-i18n="monitoring.interval">
+                        INTERVAL
+                    </label>
+
+                    <span>
+                        {{ scheduler.interval }}s
+                    </span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =====================================
+         REGISTERED RESOURCES
+    ====================================== -->
+
+    <div class="inventory-panel">
+
+        <h2 data-i18n="monitoring.registered_resources">
+            REGISTERED RESOURCES
+        </h2>
+
+
+        {% if resources %}
+
+            <div class="resource-list">
+
+
+                {% for resource in resources %}
+
+                    {% set item = health.get(
+                        resource.id|string
+                    ) %}
+
+
+                    <div class="resource-item">
+
+
+                        <div class="resource-icon">
+                            📊
+                        </div>
+
+
+                        <div class="resource-info">
+
+                            <h2>
+                                {{ resource.name }}
+                            </h2>
+
+
+                            <div class="resource-meta">
+
+
+                                <!-- HOST -->
+
+                                <div>
+
+                                    <label data-i18n="monitoring.host">
+                                        HOST
+                                    </label>
+
+                                    <strong>
+                                        {{ resource.host }}
+                                    </strong>
+
+                                </div>
+
+
+                                <!-- STATUS -->
+
+                                <div>
+
+                                    <label data-i18n="monitoring.status_label">
+                                        STATUS
+                                    </label>
+
+                                    <strong>
+
+
+                                        {% if item and item.status == "healthy" %}
+
+                                            <span class="
+                                                monitoring-status-badge
+                                                healthy
+                                            "
+                                            data-i18n="monitoring.healthy">
+                                                HEALTHY
+                                            </span>
+
+
+                                        {% elif item and item.status == "critical" %}
+
+                                            <span class="
+                                                monitoring-status-badge
+                                                failed
+                                            "
+                                            data-i18n="monitoring.failed">
+                                                FAILED
+                                            </span>
+
+
+                                        {% elif item and item.status == "warning" %}
+
+                                            <span class="
+                                                monitoring-status-badge
+                                                warning
+                                            "
+                                            data-i18n="monitoring.warning">
+                                                WARNING
+                                            </span>
+
+
+                                        {% else %}
+
+                                            <span class="
+                                                monitoring-status-badge
+                                                not-checked
+                                            "
+                                            data-i18n="monitoring.not_checked">
+                                                NOT CHECKED
+                                            </span>
+
+                                        {% endif %}
+
+
+                                    </strong>
+
+                                </div>
+
+
+                                <!-- CHECK COUNT -->
+
+                                <div>
+
+                                    <label data-i18n="monitoring.checks">
+                                        CHECKS
+                                    </label>
+
+                                    <strong>
+
+                                        {% if item %}
+
+                                            {{ item.checks|length }}
+
+                                        {% else %}
+
+                                            0
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+
+                                <!-- LAST CHECK -->
+
+                                <div>
+
+                                    <label data-i18n="monitoring.last_check">
+                                        LAST CHECK
+                                    </label>
+
+                                    <strong>
+
+                                        {% if item %}
+
+                                            {{ item.last_check }}
+
+                                        {% else %}
+
+                                            —
+
+                                        {% endif %}
+
+                                    </strong>
+
+                                </div>
+
+
+                            </div>
+
+
+                            {% if item and item.checks %}
+
+                                <div class="monitoring-resource-checks">
+
+                                    <span data-i18n="monitoring.check_types">
+                                        CHECK TYPES:
+                                    </span>
+
+                                    {% for check in item.checks %}
+
+                                        {{ check.check_type|upper }}
+
+                                        {% if not loop.last %}
+                                            ·
+                                        {% endif %}
+
+                                    {% endfor %}
+
+                                </div>
+
+                            {% endif %}
+
+
+                        </div>
+
+
+                        <a
+                            class="resource-arrow"
+                            href="{{ url_for(
+                                'monitor_resource',
+                                resource_id=resource.id
+                            ) }}"
+                        >
+                            →
+                        </a>
+
+
+                    </div>
+
+
+                {% endfor %}
+
+
+            </div>
+
+
+        {% else %}
+
+            <div
+                class="empty-state"
+                data-i18n="monitoring.no_resources"
+            >
+                ⚠ No registered infrastructure resources.
+            </div>
+
+        {% endif %}
+
+
+    </div>
+
+
+</div>
+
+
+<!-- =========================================
+     MONITORING COUNTDOWN
+========================================== -->
+
+<script>
+
+(function () {
+
+    const nextCheck =
+        {{ scheduler.next_check_at|tojson }};
+
+    const countdown =
+        document.getElementById(
+            "monitoring-countdown"
+        );
+
+
+    if (!countdown) {
+        return;
+    }
+
+
+    if (!nextCheck) {
+
+        countdown.textContent =
+            "NOT SCHEDULED";
+
+        return;
+    }
+
+
+    const target =
+        new Date(nextCheck);
+
+
+    function updateCountdown() {
+
+        const now =
+            new Date();
+
+
+        let seconds =
+            Math.ceil(
+                (
+                    target.getTime()
+                    -
+                    now.getTime()
+                ) / 1000
+            );
+
+
+        if (seconds <= 0) {
+
+            countdown.textContent =
+                "CHECKING...";
+
+            return;
+        }
+
+
+        const minutes =
+            Math.floor(
+                seconds / 60
+            );
+
+
+        seconds =
+            seconds % 60;
+
+
+        countdown.textContent =
+            String(minutes).padStart(
+                2,
+                "0"
+            )
+            +
+            ":"
+            +
+            String(seconds).padStart(
+                2,
+                "0"
+            );
+
+    }
+
+
+    updateCountdown();
+
+
+    setInterval(
+        updateCountdown,
+        1000
+    );
+
+
+    const refreshDelay =
+        Math.max(
+            3000,
+            (
+                target.getTime()
+                -
+                Date.now()
+                +
+                3000
+            )
+        );
+
+
+    setTimeout(
+        function () {
+
+            window.location.reload();
+
+        },
+        refreshDelay
+    );
+
+
+})();
+
+</script>
+
+{% endblock %}

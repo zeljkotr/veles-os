@@ -1,0 +1,497 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/infrastructure.css'
+    ) }}"
+>
+{% endblock %}
+
+{% block title %}
+Veles Infrastructure Center
+{% endblock %}
+
+{% block application %}
+<span data-i18n="infrastructure.title">
+    CENTAR INFRASTRUKTURE
+</span>
+{% endblock %}
+
+{% block content %}
+
+<div class="infra-page">
+
+<header class="infra-header">
+
+<h1 data-i18n="infrastructure.title">
+🖥 CENTAR INFRASTRUKTURE
+</h1>
+
+<p data-i18n="infrastructure.subtitle">
+Veles inventar i monitoring infrastrukture
+</p>
+
+<div class="infra-status">
+
+<span data-i18n="discovery.active">
+🟢 OTKRIVANJE AKTIVNO
+</span>
+
+<span data-i18n="dashboard.core_online">
+CORE ONLINE
+</span>
+
+<span data-i18n="infrastructure.ready">
+INFRASTRUKTURA SPREMNA
+</span>
+
+</div>
+
+<div class="infra-actions">
+
+<a
+    href="/infrastructure/add"
+    class="infra-button"
+    data-i18n="action.add_resource"
+>
+    ➕ DODAJ RESURS
+</a>
+
+<a
+    href="/discovery"
+    class="infra-button"
+    data-i18n="discovery.scan"
+>
+    🔎 OTKRIJ
+</a>
+
+</div>
+
+</header>
+
+
+<section class="resource-overview">
+
+<h2 data-i18n="infrastructure.registry">
+📦 REGISTAR RESURSA
+</h2>
+
+<div class="resource-grid">
+
+<a href="{{ url_for('resource_group', group='servers') }}">
+<div class="resource-card">
+
+<h3 data-i18n="resources.servers">
+🖥 SERVERI
+</h3>
+
+<div class="resource-number">
+{{ data.resources.servers|length }}
+</div>
+
+</div>
+</a>
+
+
+<a href="{{ url_for('resource_group', group='containers') }}">
+<div class="resource-card">
+
+<h3 data-i18n="resources.containers">
+🐳 KONTEJNERI
+</h3>
+
+<div class="resource-number">
+{{ data.resources.containers|length }}
+</div>
+
+</div>
+</a>
+
+
+<a href="{{ url_for('resource_group', group='agents') }}">
+<div class="resource-card">
+
+<h3 data-i18n="resources.agents">
+🤖 AGENTI
+</h3>
+
+<div class="resource-number">
+{{ data.resources.agents|length }}
+</div>
+
+</div>
+</a>
+
+
+<a href="{{ url_for('resource_group', group='devices') }}">
+<div class="resource-card">
+
+<h3 data-i18n="resources.devices">
+📡 UREĐAJI
+</h3>
+
+<div class="resource-number">
+{{ data.resources.devices|length }}
+</div>
+
+</div>
+</a>
+
+
+<a href="{{ url_for('resource_group', group='cloud') }}">
+<div class="resource-card">
+
+<h3 data-i18n="resources.cloud">
+☁ OBLAK
+</h3>
+
+<div class="resource-number">
+{{ data.resources.cloud|length }}
+</div>
+
+</div>
+</a>
+
+</div>
+
+</section>
+
+
+<section class="inventory-panel">
+
+<h2 data-i18n="resources.registered">
+🌐 REGISTROVANI SERVERI
+</h2>
+
+
+{% if discovered %}
+
+<section class="inventory-panel">
+
+<h2 data-i18n="discovery.discovered">
+🔎 OTKRIVENI HOSTOVI
+</h2>
+
+
+{% for host in discovered %}
+
+<div class="server-card">
+
+<div class="server-title">
+
+<h3>
+🖥 {{ host.name }}
+</h3>
+
+<span data-i18n="common.found">
+PRONAĐEN
+</span>
+
+</div>
+
+
+<div class="server-grid">
+
+<div>
+
+<label data-i18n="common.host">
+HOST
+</label>
+
+<strong>
+{{ host.host }}
+</strong>
+
+</div>
+
+
+<div>
+
+<label data-i18n="common.port">
+PORT
+</label>
+
+<strong>
+{{ host.port }}
+</strong>
+
+</div>
+
+
+<div>
+
+<label data-i18n="common.type">
+TIP
+</label>
+
+<strong>
+{{ host.type }}
+</strong>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</section>
+
+{% endif %}
+
+
+{% if data.resources.servers %}
+
+{% for server in data.resources.servers %}
+
+<div class="server-card">
+
+<div class="server-title">
+
+<h3>
+🟡 {{ server.name }}
+</h3>
+
+<span
+    data-i18n="status.{{ server.status }}"
+>
+    {{ server.status }}
+</span>
+
+</div>
+
+
+<div class="server-grid">
+
+
+<div>
+
+<label data-i18n="common.host">
+HOST
+</label>
+
+<strong>
+{{ server.host }}
+</strong>
+
+</div>
+
+
+<div>
+
+<label data-i18n="common.port">
+PORT
+</label>
+
+<strong>
+{{ server.port }}
+</strong>
+
+</div>
+
+
+<div>
+
+<label data-i18n="resources.username">
+KORISNIČKO IME
+</label>
+
+<strong>
+{{ server.username or "N/A" }}
+</strong>
+
+</div>
+
+
+<div>
+
+<label data-i18n="resources.group">
+GRUPA
+</label>
+
+<strong
+    data-i18n="group.{{ server.group or 'default' }}"
+>
+    {{ server.group or "default" }}
+</strong>
+
+</div>
+
+
+</div>
+
+</div>
+
+{% endfor %}
+
+
+{% else %}
+
+<div
+    class="empty-state"
+    data-i18n="infrastructure.no_servers"
+>
+⚠ Nema registrovanih servera.
+</div>
+
+{% endif %}
+
+</section>
+
+
+<section class="infra-monitor">
+
+<div class="monitor-header">
+
+<h2 data-i18n="infrastructure.core_live_status">
+🖥 VELES CORE STATUS UŽIVO
+</h2>
+
+</div>
+
+
+<section class="infra-cards">
+
+
+<div class="infra-card">
+
+<div class="infra-icon">
+⚡
+</div>
+
+<h3 data-i18n="system.cpu">
+CPU OPTEREĆENJE
+</h3>
+
+<div class="infra-value">
+{{ server.cpu }}
+</div>
+
+<p data-i18n="system.load_average">
+Prosečno opterećenje sistema
+</p>
+
+</div>
+
+
+<div class="infra-card">
+
+<div class="infra-icon">
+🧠
+</div>
+
+<h3 data-i18n="system.memory">
+MEMORIJA
+</h3>
+
+<div class="infra-value">
+
+{{ server.memory.used_gb }}
+/
+{{ server.memory.total_gb }}
+GB
+
+</div>
+
+<p data-i18n="system.ram_usage">
+Upotreba RAM-a
+</p>
+
+</div>
+
+
+<div class="infra-card">
+
+<div class="infra-icon">
+💾
+</div>
+
+<h3 data-i18n="system.disk">
+SKLADIŠTE
+</h3>
+
+<div class="infra-value">
+
+{{ server.disk.used_gb }}
+/
+{{ server.disk.total_gb }}
+GB
+
+</div>
+
+<p data-i18n="system.root_filesystem">
+Root sistem datoteka
+</p>
+
+</div>
+
+
+</section>
+
+
+<div class="monitor-grid">
+
+
+<div class="monitor-item">
+
+<label data-i18n="system.hostname">
+Ime hosta
+</label>
+
+<strong>
+{{ server.hostname }}
+</strong>
+
+</div>
+
+
+<div class="monitor-item">
+
+<label data-i18n="network.address">
+IP Adresa
+</label>
+
+<strong>
+{{ server.ip }}
+</strong>
+
+</div>
+
+
+<div class="monitor-item">
+
+<label data-i18n="system.os">
+Operativni sistem
+</label>
+
+<strong>
+{{ server.os }}
+</strong>
+
+</div>
+
+
+<div class="monitor-item">
+
+<label data-i18n="system.uptime">
+Vreme rada
+</label>
+
+<strong>
+{{ server.uptime }}
+</strong>
+
+</div>
+
+
+</div>
+
+</section>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,1681 @@
+/*
+VELES SECURITY CENTER
+AI Operations Center UI
+*/
+
+
+/* ============================================================
+   PAGE
+   ============================================================ */
+
+.security-page {
+
+    width: 100%;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 28px;
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+.security-header {
+
+    text-align: center;
+
+    padding: 8px 0 4px;
+}
+
+.security-header h1 {
+
+    margin: 0 0 8px;
+
+    color: var(--gold);
+
+    font-size: 34px;
+
+    font-weight: 800;
+
+    letter-spacing: 4px;
+
+    text-shadow:
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--gold) 18%,
+            transparent
+        );
+}
+
+.security-header p {
+
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 14px;
+}
+
+
+/* ============================================================
+   STATUS
+   ============================================================ */
+
+.security-status {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-top: 18px;
+
+    width: 100%;
+}
+
+.security-status span {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-height: 36px;
+
+    padding: 8px 16px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel2),
+            var(--panel)
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 999px;
+
+    color: var(--text);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    white-space: nowrap;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.security-status span:hover {
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--gold) 12%,
+            transparent
+        );
+}
+
+
+/* ============================================================
+   ACTION
+   ============================================================ */
+
+.security-actions {
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    width: 100%;
+
+    margin-top: 22px;
+}
+
+.security-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    width: 260px;
+
+    min-width: 260px;
+
+    height: 56px;
+
+    padding: 0 24px;
+
+    box-sizing: border-box;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel2),
+            var(--panel)
+        );
+
+    border:
+        2px solid var(--gold);
+
+    border-radius: 10px;
+
+    color: var(--gold2);
+
+    text-decoration: none;
+
+    font-size: 14px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.4px;
+
+    box-shadow:
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--gold) 12%,
+            transparent
+        );
+
+    transition:
+        transform .2s ease,
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.security-button:hover {
+
+    border-color: var(--gold2);
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 0 30px
+        color-mix(
+            in srgb,
+            var(--gold) 25%,
+            transparent
+        );
+}
+
+.security-button:active {
+
+    transform:
+        translateY(0);
+}
+
+
+/* ============================================================
+   PANEL
+   ============================================================ */
+
+.security-panel {
+
+    position: relative;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel2),
+            var(--panel)
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 14px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 0 20px
+        color-mix(
+            in srgb,
+            var(--gold) 5%,
+            transparent
+        );
+
+    overflow: hidden;
+}
+
+.security-panel::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    right: 0;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--gold),
+            transparent
+        );
+
+    opacity: .55;
+}
+
+.security-panel h2 {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin:
+        0 0 18px;
+
+    color: var(--gold);
+
+    font-size: 17px;
+
+    letter-spacing: 1.2px;
+}
+
+
+/* ============================================================
+   SECURITY OVERVIEW
+   ============================================================ */
+
+.security-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            6,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 16px;
+
+    width: 100%;
+}
+
+.security-card {
+
+    position: relative;
+
+    overflow: hidden;
+
+    min-width: 0;
+
+    padding: 20px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel2),
+            var(--panel)
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 14px;
+
+    text-align: center;
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.security-card::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+
+    bottom: 0;
+
+    width: 100%;
+
+    height: 2px;
+
+    background: var(--gold);
+
+    opacity: .65;
+}
+
+.security-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 22px
+        color-mix(
+            in srgb,
+            var(--gold) 16%,
+            transparent
+        );
+}
+
+.security-card h3 {
+
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.5px;
+
+    text-transform: uppercase;
+}
+
+
+/* ============================================================
+   VALUE
+   ============================================================ */
+
+.security-value {
+
+    margin-top: 10px;
+
+    color: var(--gold);
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    line-height: 1.1;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   SECURITY STATES
+   ============================================================ */
+
+.security-ok {
+
+    color: var(--green);
+
+    text-shadow:
+        0 0 12px
+        color-mix(
+            in srgb,
+            var(--green) 15%,
+            transparent
+        );
+}
+
+.security-warning {
+
+    color: var(--gold);
+}
+
+.security-error {
+
+    color: var(--red);
+}
+
+.security-unknown {
+
+    color: var(--muted);
+}
+
+
+/* ============================================================
+   CHECK LIST
+   ============================================================ */
+
+.security-check-list {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            2,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 16px;
+}
+
+
+/* ============================================================
+   SECURITY CHECK
+   ============================================================ */
+
+.security-check {
+
+    display: flex;
+
+    gap: 16px;
+
+    min-width: 0;
+
+    padding: 18px;
+
+    background:
+        linear-gradient(
+            145deg,
+            var(--panel2),
+            var(--panel)
+        );
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 14px;
+
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.security-check:hover {
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 22px
+        color-mix(
+            in srgb,
+            var(--gold) 14%,
+            transparent
+        );
+
+    transform:
+        translateY(-2px);
+}
+
+
+/* ============================================================
+   CHECK ICON
+   ============================================================ */
+
+.security-check-icon {
+
+    width: 52px;
+
+    height: 52px;
+
+    min-width: 52px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 13px;
+
+    color: var(--gold);
+
+    font-size: 25px;
+}
+
+
+/* ============================================================
+   CHECK INFO
+   ============================================================ */
+
+.security-check-info {
+
+    flex: 1;
+
+    min-width: 0;
+}
+
+.security-check-info h3 {
+
+    margin:
+        1px 0 13px;
+
+    color: var(--gold2);
+
+    font-size: 16px;
+
+    letter-spacing: 1px;
+}
+
+
+/* ============================================================
+   CHECK HEADING
+   ============================================================ */
+
+.security-check-heading {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 13px;
+}
+
+.security-check-heading h3 {
+
+    margin: 0;
+}
+
+
+/* ============================================================
+   CHECK STATUS
+   ============================================================ */
+
+.security-check-status {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 5px 9px;
+
+    border-radius: 999px;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+.security-status-healthy {
+
+    color: var(--green);
+}
+
+.security-status-warning {
+
+    color: var(--gold);
+}
+
+.security-status-error {
+
+    color: var(--red);
+}
+
+.security-status-unknown {
+
+    color: var(--muted);
+}
+
+
+/* ============================================================
+   CHECK META
+   ============================================================ */
+
+.security-meta {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 10px;
+
+    margin-bottom: 8px;
+}
+
+.security-meta div {
+
+    min-width: 0;
+
+    padding: 12px;
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+}
+
+.security-meta label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+.security-meta strong {
+
+    display: block;
+
+    color: var(--text);
+
+    font-size: 14px;
+
+    font-weight: 650;
+
+    line-height: 1.45;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   DETAILS
+   ============================================================ */
+
+.security-details {
+
+    margin-top: 12px;
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    overflow: hidden;
+}
+
+.security-details summary {
+
+    padding: 12px 14px;
+
+    color: var(--gold2);
+
+    cursor: pointer;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    transition:
+        background .2s ease;
+}
+
+.security-details summary:hover {
+
+    background:
+        color-mix(
+            in srgb,
+            var(--gold) 6%,
+            transparent
+        );
+}
+
+.security-details pre {
+
+    max-height: 360px;
+
+    margin: 0;
+
+    padding: 14px;
+
+    border-top:
+        1px solid var(--border);
+
+    color: var(--muted);
+
+    white-space: pre-wrap;
+
+    overflow-x: auto;
+
+    overflow-y: auto;
+
+    font-family:
+        "SFMono-Regular",
+        Consolas,
+        "Liberation Mono",
+        monospace;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+}
+
+
+/* ============================================================
+   DETAIL GRID
+   ============================================================ */
+
+.security-detail-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 10px;
+
+    margin-top: 12px;
+}
+
+.security-detail-item {
+
+    min-width: 0;
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    padding: 13px;
+}
+
+.security-detail-item label {
+
+    display: block;
+
+    margin-bottom: 6px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+.security-detail-item strong {
+
+    display: block;
+
+    color: var(--text);
+
+    font-size: 14px;
+
+    font-weight: 650;
+
+    line-height: 1.4;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   STATE BOX
+   ============================================================ */
+
+.security-state-box {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 12px;
+
+    padding: 14px;
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+}
+
+.security-state-label {
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+.security-state-box strong {
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    font-weight: 650;
+}
+
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+.security-table-wrapper {
+
+    width: 100%;
+
+    overflow-x: auto;
+}
+
+.security-table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    font-size: 13px;
+}
+
+.security-table th {
+
+    padding: 12px;
+
+    text-align: left;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    white-space: nowrap;
+
+    border-bottom:
+        1px solid var(--border);
+}
+
+.security-table td {
+
+    padding: 12px;
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    line-height: 1.4;
+
+    white-space: nowrap;
+
+    border-bottom:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--border) 55%,
+            transparent
+        );
+}
+
+.security-table tr:hover td {
+
+    background:
+        color-mix(
+            in srgb,
+            var(--gold) 3%,
+            transparent
+        );
+}
+
+.security-table tr:last-child td {
+
+    border-bottom: none;
+}
+
+
+/* ============================================================
+   LISTS
+   ============================================================ */
+
+.security-list {
+
+    padding: 10px 0;
+}
+
+.security-list-item {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 11px 14px;
+
+    border-bottom:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--border) 55%,
+            transparent
+        );
+
+    color: var(--text);
+
+    font-size: 14px;
+}
+
+.security-list-item:last-child {
+
+    border-bottom: none;
+}
+
+.security-badge {
+
+    padding: 5px 9px;
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 999px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: .7px;
+}
+
+
+/* ============================================================
+   SERVICES
+   ============================================================ */
+
+.security-service-list {
+
+    padding: 8px 0;
+}
+
+.security-service-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 10px 14px;
+
+    border-bottom:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--border) 55%,
+            transparent
+        );
+}
+
+.security-service-row:last-child {
+
+    border-bottom: none;
+}
+
+.security-service-name {
+
+    color: var(--text);
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+.security-service-state {
+
+    color: var(--green);
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+}
+
+
+/* ============================================================
+   FIREWALL
+   ============================================================ */
+
+.security-firewall-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    padding: 12px;
+}
+
+.security-firewall-card {
+
+    padding: 14px;
+
+    background:
+        var(--panel2);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 10px;
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.security-firewall-card:hover {
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 18px
+        color-mix(
+            in srgb,
+            var(--gold) 10%,
+            transparent
+        );
+}
+
+.security-firewall-header {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 12px;
+
+    margin-bottom: 12px;
+}
+
+.security-firewall-header strong {
+
+    color: var(--gold2);
+
+    font-size: 14px;
+
+    letter-spacing: 1px;
+}
+
+.security-firewall-meta {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 8px;
+}
+
+.security-firewall-meta div {
+
+    padding: 10px;
+
+    background:
+        var(--panel);
+
+    border:
+        1px solid var(--border);
+
+    border-radius: 8px;
+}
+
+.security-firewall-meta label {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+}
+
+.security-firewall-meta strong {
+
+    color: var(--text);
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   PORTS
+   ============================================================ */
+
+.security-port-list {
+
+    padding: 8px;
+}
+
+.security-port-row {
+
+    display: grid;
+
+    grid-template-columns:
+        70px
+        80px
+        minmax(120px, 1fr)
+        minmax(70px, auto)
+        minmax(160px, 2fr);
+
+    gap: 10px;
+
+    align-items: center;
+
+    padding: 10px;
+
+    border-bottom:
+        1px solid
+        color-mix(
+            in srgb,
+            var(--border) 55%,
+            transparent
+        );
+
+    color: var(--text);
+
+    font-size: 13px;
+}
+
+.security-port-row:last-child {
+
+    border-bottom: none;
+}
+
+.security-port-protocol {
+
+    color: var(--gold2);
+
+    font-weight: 700;
+}
+
+.security-port-state {
+
+    color: var(--muted);
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+.security-port-address {
+
+    word-break: break-all;
+}
+
+.security-port-process {
+
+    color: var(--muted);
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+
+.security-empty {
+
+    padding: 40px;
+
+    text-align: center;
+
+    color: var(--muted);
+
+    background:
+        var(--panel);
+
+    border:
+        1px dashed var(--border);
+
+    border-radius: 12px;
+
+    font-size: 13px;
+
+    letter-spacing: .5px;
+}
+
+
+/* ============================================================
+   SYSTEM SECURITY CONTEXT
+   ============================================================ */
+
+.security-system-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(
+                0,
+                1fr
+            )
+        );
+
+    gap: 12px;
+}
+
+.security-system-item {
+
+    background:
+        var(--panel);
+
+    padding: 16px;
+
+    border-radius: 11px;
+
+    border:
+        1px solid var(--border);
+
+    transition:
+        border-color .2s ease,
+        box-shadow .2s ease;
+}
+
+.security-system-item:hover {
+
+    border-color: var(--gold);
+
+    box-shadow:
+        0 0 16px
+        color-mix(
+            in srgb,
+            var(--gold) 8%,
+            transparent
+        );
+}
+
+.security-system-item label {
+
+    display: block;
+
+    margin-bottom: 7px;
+
+    color: var(--muted);
+
+    font-size: 10px;
+
+    font-weight: 700;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+}
+
+.security-system-item strong {
+
+    color: var(--text);
+
+    font-size: 15px;
+
+    font-weight: 650;
+
+    word-break: break-word;
+}
+
+
+/* ============================================================
+   STRUCTURAL HOOK
+   ============================================================ */
+
+.security-check
+    .security-check-icon:has(+ .security-check-info) {
+
+    /* Intentionally neutral. */
+
+}
+
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+
+.security-details pre::-webkit-scrollbar {
+
+    width: 7px;
+
+    height: 7px;
+}
+
+.security-details pre::-webkit-scrollbar-track {
+
+    background:
+        var(--panel);
+}
+
+.security-details pre::-webkit-scrollbar-thumb {
+
+    background:
+        color-mix(
+            in srgb,
+            var(--gold) 30%,
+            transparent
+        );
+
+    border-radius: 10px;
+}
+
+.security-details pre::-webkit-scrollbar-thumb:hover {
+
+    background:
+        color-mix(
+            in srgb,
+            var(--gold) 50%,
+            transparent
+        );
+}
+
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media(max-width:1200px) {
+
+    .security-grid {
+
+        grid-template-columns:
+            repeat(
+                3,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+    .security-check-list {
+
+        grid-template-columns:
+            1fr;
+    }
+}
+
+
+@media(max-width:900px) {
+
+    .security-grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+    .security-meta {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+    .security-system-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-detail-grid {
+
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(
+                    0,
+                    1fr
+                )
+            );
+    }
+
+    .security-firewall-meta {
+
+        grid-template-columns:
+            1fr;
+    }
+}
+
+
+@media(max-width:700px) {
+
+    .security-page {
+
+        gap: 20px;
+    }
+
+    .security-header {
+
+        padding-top: 4px;
+    }
+
+    .security-header h1 {
+
+        font-size: 27px;
+
+        letter-spacing: 3px;
+    }
+
+    .security-header p {
+
+        font-size: 13px;
+    }
+
+    .security-status {
+
+        flex-direction: column;
+
+        gap: 8px;
+
+        margin-top: 15px;
+    }
+
+    .security-status span {
+
+        width: 100%;
+
+        white-space: normal;
+    }
+
+    .security-actions {
+
+        margin-top: 20px;
+    }
+
+    .security-button {
+
+        width: 100%;
+
+        min-width: 0;
+
+        height: 54px;
+    }
+
+    .security-panel {
+
+        padding: 16px;
+
+        border-radius: 14px;
+    }
+
+    .security-panel h2 {
+
+        font-size: 15px;
+    }
+
+    .security-grid {
+
+        grid-template-columns:
+            1fr;
+
+        gap: 12px;
+    }
+
+    .security-card {
+
+        padding: 16px;
+    }
+
+    .security-check {
+
+        flex-direction: column;
+
+        gap: 12px;
+
+        padding: 16px;
+    }
+
+    .security-check-icon {
+
+        width: 48px;
+
+        height: 48px;
+
+        min-width: 48px;
+    }
+
+    .security-meta {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-detail-grid {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-firewall-meta {
+
+        grid-template-columns:
+            1fr;
+    }
+
+    .security-check-heading {
+
+        align-items: flex-start;
+
+        flex-direction: column;
+    }
+
+    .security-port-row {
+
+        grid-template-columns:
+            1fr
+            1fr;
+    }
+}

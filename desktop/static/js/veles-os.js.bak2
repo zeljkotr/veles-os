@@ -1,0 +1,417 @@
+cd ~/veles/veles/web/static/js/
+
+# Sačuvaj staru verziju
+cp veles-os.js veles-os.js.bak
+
+# Napravi novi veles-os.js
+cat > veles-os.js << 'EOF'
+/*
+ * =========================================================
+ * VELES OS - COMPLETE (with built-in translation)
+ * =========================================================
+ * 
+ * Everything in one file - no dependencies!
+ * =========================================================
+ */
+
+(function() {
+
+    "use strict";
+
+    // =========================================================
+    // TRANSLATIONS - SVI PREVODI
+    // =========================================================
+
+    var TRANSLATIONS = {
+
+        en: {
+
+            // ========== NAVIGACIJA ==========
+            'nav.workspace': 'WORKSPACE',
+            'nav.overview': 'OVERVIEW',
+            'nav.operations': 'OPERATIONS',
+            'nav.discovery': 'DISCOVERY',
+            'nav.system': 'SYSTEM',
+            'nav.events': 'EVENTS',
+            'nav.intelligence': 'INTELLIGENCE',
+            'nav.ai': 'AI ASSISTANT',
+            'nav.memory': 'MEMORY',
+
+            // ========== SISTEM ==========
+            'system.veles_os': 'VELES OS',
+            'system.local_system': 'LOCAL SYSTEM',
+            'system.online': '🟢 ONLINE',
+            'system.local': '🏠 LOCAL',
+
+            // ========== BREND ==========
+            'brand.name': 'VELES',
+            'brand.os': 'OPERATING SYSTEM',
+
+            // ========== POSTAVKE ==========
+            'settings.language': 'LANGUAGE',
+            'settings.theme': 'THEME',
+
+            // ========== JEZICI ==========
+            'language.english': 'English',
+            'language.serbian': 'Srpski',
+
+            // ========== DASHBOARD ==========
+            'dashboard.title': 'AI Operations Control Center',
+            'dashboard.system_operational': 'SYSTEM OPERATIONAL',
+            'dashboard.operations_map': 'OPERATIONS MAP',
+            'dashboard.intelligence': 'INTELLIGENCE',
+            'dashboard.infrastructure': 'INFRASTRUCTURE',
+            'dashboard.delivery': 'DELIVERY',
+            'dashboard.core_online': 'CORE ONLINE',
+            'dashboard.cloud': 'CLOUD',
+            'dashboard.security': 'SECURITY',
+            'dashboard.automation': 'AUTOMATION',
+            'dashboard.monitoring': 'MONITORING',
+            'dashboard.network': 'NETWORK',
+            'dashboard.platform': 'PLATFORM',
+            'dashboard.data': 'DATA',
+            'dashboard.testing': 'TESTING',
+            'dashboard.access': 'ACCESS',
+
+            // ========== INFRASTRUKTURA ==========
+            'infrastructure.title': 'INFRASTRUCTURE CENTER',
+            'infrastructure.subtitle': 'Veles infrastructure inventory and monitoring',
+            'infrastructure.registry': 'RESOURCE REGISTRY',
+            'infrastructure.ready': 'INFRASTRUCTURE READY',
+            'infrastructure.core_live_status': 'VELES CORE LIVE STATUS',
+            'infrastructure.no_servers': 'No registered servers.',
+
+            // ========== DISCOVERY ==========
+            'discovery.active': 'DISCOVERY ACTIVE',
+            'discovery.scan': 'DISCOVER',
+            'discovery.discovered': 'DISCOVERED HOSTS',
+
+            // ========== RESURSI ==========
+            'resources.servers': 'SERVERS',
+            'resources.containers': 'CONTAINERS',
+            'resources.agents': 'AGENTS',
+            'resources.devices': 'DEVICES',
+            'resources.cloud': 'CLOUD',
+            'resources.registered': 'REGISTERED SERVERS',
+            'resources.username': 'USERNAME',
+            'resources.group': 'GROUP',
+
+            // ========== ACTION ==========
+            'action.add_resource': 'ADD RESOURCE',
+
+            // ========== UOBIČAJENO ==========
+            'common.host': 'HOST',
+            'common.port': 'PORT',
+            'common.type': 'TYPE',
+            'common.found': 'FOUND',
+
+            // ========== NETWORK ==========
+            'network.address': 'IP Address',
+
+            // ========== STATUSI ==========
+            'status.online': 'online',
+            'status.planned': 'planned',
+            'status.operational': 'operational',
+
+            // ========== TEMA ==========
+            'theme.dark': 'Dark',
+            'theme.light': 'Light',
+            'theme.select': 'Theme'
+
+        },
+
+        sr: {
+
+            // ========== NAVIGACIJA ==========
+            'nav.workspace': 'RADNI PROSTOR',
+            'nav.overview': 'PREGLED',
+            'nav.operations': 'OPERACIJE',
+            'nav.discovery': 'OTKRIVANJE',
+            'nav.system': 'SISTEM',
+            'nav.events': 'DOGAĐAJI',
+            'nav.intelligence': 'OBAVEŠTAJNI RAD',
+            'nav.ai': 'AI ASISTENT',
+            'nav.memory': 'MEMORIJA',
+
+            // ========== SISTEM ==========
+            'system.veles_os': 'VELES OS',
+            'system.local_system': 'LOKALNI SISTEM',
+            'system.online': '🟢 ONLINE',
+            'system.local': '🏠 LOKALNO',
+
+            // ========== BREND ==========
+            'brand.name': 'VELES',
+            'brand.os': 'OPERATIVNI SISTEM',
+
+            // ========== POSTAVKE ==========
+            'settings.language': 'JEZIK',
+            'settings.theme': 'TEMA',
+
+            // ========== JEZICI ==========
+            'language.english': 'Engleski',
+            'language.serbian': 'Srpski',
+
+            // ========== DASHBOARD ==========
+            'dashboard.title': 'AI Operativni Kontrolni Centar',
+            'dashboard.system_operational': 'SISTEM OPERATIVAN',
+            'dashboard.operations_map': 'MAPA OPERACIJA',
+            'dashboard.intelligence': 'OBAVEŠTAJNI RAD',
+            'dashboard.infrastructure': 'INFRASTRUKTURA',
+            'dashboard.delivery': 'DOSTAVA',
+            'dashboard.core_online': 'CORE ONLINE',
+            'dashboard.cloud': 'OBLAK',
+            'dashboard.security': 'BEZBEDNOST',
+            'dashboard.automation': 'AUTOMATIZACIJA',
+            'dashboard.monitoring': 'MONITORING',
+            'dashboard.network': 'MREŽA',
+            'dashboard.platform': 'PLATFORMA',
+            'dashboard.data': 'PODACI',
+            'dashboard.testing': 'TESTIRANJE',
+            'dashboard.access': 'PRISTUP',
+
+            // ========== INFRASTRUKTURA ==========
+            'infrastructure.title': 'CENTAR INFRASTRUKTURE',
+            'infrastructure.subtitle': 'Veles inventar i monitoring infrastrukture',
+            'infrastructure.registry': 'REGISTAR RESURSA',
+            'infrastructure.ready': 'INFRASTRUKTURA SPREMNA',
+            'infrastructure.core_live_status': 'VELES CORE STATUS UŽIVO',
+            'infrastructure.no_servers': 'Nema registrovanih servera.',
+
+            // ========== DISCOVERY ==========
+            'discovery.active': 'OTKRIVANJE AKTIVNO',
+            'discovery.scan': 'OTKRIJ',
+            'discovery.discovered': 'OTKRIVENI HOSTOVI',
+
+            // ========== RESURSI ==========
+            'resources.servers': 'SERVERI',
+            'resources.containers': 'KONTEJNERI',
+            'resources.agents': 'AGENTI',
+            'resources.devices': 'UREĐAJI',
+            'resources.cloud': 'OBLAK',
+            'resources.registered': 'REGISTROVANI SERVERI',
+            'resources.username': 'KORISNIČKO IME',
+            'resources.group': 'GRUPA',
+
+            // ========== ACTION ==========
+            'action.add_resource': 'DODAJ RESURS',
+
+            // ========== UOBIČAJENO ==========
+            'common.host': 'HOST',
+            'common.port': 'PORT',
+            'common.type': 'TIP',
+            'common.found': 'PRONAĐEN',
+
+            // ========== NETWORK ==========
+            'network.address': 'IP Adresa',
+
+            // ========== STATUSI ==========
+            'status.online': 'online',
+            'status.planned': 'planirano',
+            'status.operational': 'operativan',
+
+            // ========== TEMA ==========
+            'theme.dark': 'Tamna',
+            'theme.light': 'Svetla',
+            'theme.select': 'Tema'
+
+        }
+
+    };
+
+
+    // =========================================================
+    // TRANSLATE PAGE - JEDINA FUNKCIJA KOJA RADI
+    // =========================================================
+
+    function translatePage(lang) {
+
+        lang = lang || 'en';
+
+        console.log('[VELES OS] Translating to:', lang);
+
+        document.documentElement.dataset.language = lang;
+
+        var elements = document.querySelectorAll('[data-i18n]');
+
+        console.log('[VELES OS] Found', elements.length, 'elements');
+
+        elements.forEach(function(el) {
+
+            var key = el.getAttribute('data-i18n');
+            var translation = null;
+
+            // Pokušaj da nađeš prevod
+            if (TRANSLATIONS[lang] && TRANSLATIONS[lang][key] !== undefined) {
+                translation = TRANSLATIONS[lang][key];
+            } else if (TRANSLATIONS['en'] && TRANSLATIONS['en'][key] !== undefined) {
+                translation = TRANSLATIONS['en'][key];
+            }
+
+            if (translation !== null) {
+
+                console.log('[VELES OS] Translating:', key, '->', translation);
+
+                // === NAJBOLJA METODA - RADI SA DECOM ===
+                // Sačuvaj HTML strukturu ali zameni tekst
+                var html = el.innerHTML;
+                var textOnly = el.textContent;
+                
+                // Ako element ima decu, zameni prvi tekstualni čvor
+                if (el.children.length > 0) {
+                    var nodes = el.childNodes;
+                    for (var i = 0; i < nodes.length; i++) {
+                        if (nodes[i].nodeType === 3) { // TEXT_NODE
+                            if (nodes[i].textContent.trim() !== '') {
+                                nodes[i].textContent = translation;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    // Ako nema dece, zameni ceo tekst
+                    el.textContent = translation;
+                }
+
+            }
+
+        });
+
+        // Ažuriraj dropdown
+        var selector = document.getElementById('veles-language-select');
+        if (selector) {
+            selector.value = lang;
+        }
+
+        console.log('[VELES OS] Translation complete!');
+
+    }
+
+
+    // =========================================================
+    // THEME
+    // =========================================================
+
+    function applyTheme(theme) {
+
+        theme = theme || 'dark';
+
+        console.log('[VELES OS] Applying theme:', theme);
+
+        document.documentElement.dataset.theme = theme;
+        document.body.classList.remove('theme-dark', 'theme-light');
+        document.body.classList.add('theme-' + theme);
+
+        var selector = document.getElementById('veles-theme-select');
+        if (selector) {
+            selector.value = theme;
+        }
+
+    }
+
+
+    // =========================================================
+    // GLOBAL API
+    // =========================================================
+
+    window.VELES_SETTINGS = {
+
+        getLanguage: function() {
+            return localStorage.getItem('veles-language') || 'en';
+        },
+
+        setLanguage: function(lang) {
+            localStorage.setItem('veles-language', lang);
+            translatePage(lang);
+            window.dispatchEvent(new CustomEvent('veles:language-changed', {
+                detail: { language: lang }
+            }));
+        },
+
+        getTheme: function() {
+            return localStorage.getItem('veles-theme') || 'dark';
+        },
+
+        setTheme: function(theme) {
+            localStorage.setItem('veles-theme', theme);
+            applyTheme(theme);
+            window.dispatchEvent(new CustomEvent('veles:theme-changed', {
+                detail: { theme: theme }
+            }));
+        },
+
+        applyLanguage: function(lang) {
+            translatePage(lang || this.getLanguage());
+        },
+
+        applyTheme: function(theme) {
+            applyTheme(theme || this.getTheme());
+        }
+
+    };
+
+    window.VELES_TRANSLATIONS = TRANSLATIONS;
+
+
+    // =========================================================
+    // INIT
+    // =========================================================
+
+    function init() {
+
+        console.log('[VELES OS] Initializing...');
+
+        var lang = window.VELES_SETTINGS.getLanguage();
+        var theme = window.VELES_SETTINGS.getTheme();
+
+        window.VELES_SETTINGS.applyLanguage(lang);
+        window.VELES_SETTINGS.applyTheme(theme);
+
+        console.log('[VELES OS] Ready! Language:', lang, 'Theme:', theme);
+
+    }
+
+
+    // =========================================================
+    // EVENT LISTENERS
+    // =========================================================
+
+    document.addEventListener('DOMContentLoaded', function() {
+
+        var langSel = document.getElementById('veles-language-select');
+
+        if (langSel) {
+            langSel.addEventListener('change', function() {
+                window.VELES_SETTINGS.setLanguage(this.value);
+            });
+        }
+
+        var themeSel = document.getElementById('veles-theme-select');
+
+        if (themeSel) {
+            themeSel.addEventListener('change', function() {
+                window.VELES_SETTINGS.setTheme(this.value);
+            });
+        }
+
+        init();
+
+    });
+
+
+    window.addEventListener('veles:language-changed', function(e) {
+        if (e.detail && e.detail.language) {
+            document.documentElement.dataset.language = e.detail.language;
+        }
+    });
+
+    window.addEventListener('veles:theme-changed', function(e) {
+        if (e.detail && e.detail.theme) {
+            document.documentElement.dataset.theme = e.detail.theme;
+        }
+    });
+
+
+})();
+EOF
+
+echo "✅ veles-os.js je kreiran!"

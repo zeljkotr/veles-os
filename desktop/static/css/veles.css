@@ -1,0 +1,2560 @@
+:root {
+
+    /* =====================================================
+       VELES OS BRAND
+       ===================================================== */
+
+    --gold:#d9a441;
+    --gold2:#ffe9a3;
+
+    --green:#55d66b;
+
+
+    /* =====================================================
+       TRANSITIONS
+       ===================================================== */
+
+    --transition-fast:.16s ease;
+    --transition:.22s ease;
+
+}
+
+
+/* =========================================================
+   VELES DARK THEME
+   ========================================================= */
+
+html[data-theme="dark"] {
+
+    --bg:#0b0f14;
+
+    --panel:#141b23;
+    --panel2:#1a2330;
+    --panel3:#111820;
+
+    --border:#293646;
+
+    --text:#e8edf2;
+    --text-secondary:#cbd3dc;
+
+    --muted:#8d9aaa;
+    --muted-strong:#687586;
+
+    --header:#141b23;
+    --header2:#10161d;
+
+    --sidebar-top:#111820;
+    --sidebar-mid:#0c1117;
+    --sidebar-bottom:#080c11;
+
+    --input:#0b1016;
+
+    --code:#0a0f14;
+    --pre:#05080c;
+
+    --button-secondary:#18222d;
+
+    --scroll-track:#080b10;
+    --scroll-thumb:#303b49;
+    --scroll-thumb-hover:#465363;
+
+    --selection:rgba(217,164,65,.14);
+
+    --system-background:#080c11;
+
+    --control-bg:#18222d;
+    --control-hover:#141b23;
+    --control-text:#e8edf2;
+    --control-option-bg:#141b23;
+
+    --overlay:rgba(11,15,20,.75);
+
+}
+
+
+/* =========================================================
+   VELES LIGHT THEME
+   ========================================================= */
+
+html[data-theme="light"] {
+
+    --bg:#eef1f4;
+
+    --panel:#ffffff;
+    --panel2:#f4f6f8;
+    --panel3:#e8edf1;
+
+    --border:#cbd3dc;
+
+    --text:#17202a;
+    --text-secondary:#26323e;
+
+    --muted:#657384;
+    --muted-strong:#596777;
+
+    --header:#ffffff;
+    --header2:#f4f6f8;
+
+    --sidebar-top:#ffffff;
+    --sidebar-mid:#f4f6f8;
+    --sidebar-bottom:#e8edf1;
+
+    --input:#f8fafb;
+
+    --code:#eef2f5;
+    --pre:#e9edf1;
+
+    --button-secondary:#edf1f4;
+
+    --scroll-track:#e3e7eb;
+    --scroll-thumb:#aeb8c3;
+    --scroll-thumb-hover:#8f9aa7;
+
+    --selection:rgba(217,164,65,.14);
+
+    --system-background:#e8edf1;
+
+    --control-bg:#edf1f4;
+    --control-hover:#ffffff;
+    --control-text:#17202a;
+    --control-option-bg:#ffffff;
+
+    --overlay:rgba(238,241,244,.78);
+
+}
+
+
+/* =========================================================
+   GLOBAL
+   ========================================================= */
+
+* {
+
+    box-sizing:border-box;
+
+}
+
+
+html,
+body {
+
+    margin:0;
+
+    padding:0;
+
+    width:100%;
+
+    height:100%;
+
+    background:var(--bg);
+
+    color:var(--text);
+
+    font-family:
+        "Segoe UI",
+        Arial,
+        sans-serif;
+
+    transition:
+        background-color .2s ease,
+        color .2s ease;
+
+}
+
+
+body {
+
+    overflow:hidden;
+
+}
+
+
+::selection {
+
+    background:var(--selection);
+
+}
+
+
+a {
+
+    color:inherit;
+
+}
+
+
+button,
+input,
+textarea,
+select {
+
+    font-family:inherit;
+
+}
+
+
+/* =========================================================
+   VELES OS LAYOUT
+   ========================================================= */
+
+.app-layout {
+
+    display:flex;
+
+    width:100%;
+
+    height:100vh;
+
+    overflow:hidden;
+
+    background:var(--bg);
+
+}
+
+
+/* =========================================================
+   SIDEBAR
+   ========================================================= */
+
+.sidebar {
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:278px;
+
+    min-width:278px;
+
+    height:100vh;
+
+    padding:28px 18px 20px;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--sidebar-top) 0%,
+            var(--sidebar-mid) 48%,
+            var(--sidebar-bottom) 100%
+        );
+
+    border-right:1px solid var(--border);
+
+    overflow:hidden;
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+
+}
+
+
+/* =========================================================
+   SUBTLE SIDE GRID
+   ========================================================= */
+
+.sidebar::before {
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    pointer-events:none;
+
+    opacity:.18;
+
+    background-image:
+        linear-gradient(
+            rgba(128,128,128,.10) 1px,
+            transparent 1px
+        ),
+        linear-gradient(
+            90deg,
+            rgba(128,128,128,.10) 1px,
+            transparent 1px
+        );
+
+    background-size:32px 32px;
+
+}
+
+
+/* =========================================================
+   SIDEBAR BRAND
+   ========================================================= */
+
+.sidebar-brand {
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    padding:8px 0 26px;
+
+    border-bottom:1px solid var(--border);
+
+}
+
+
+.sidebar-brand-mark {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:48px;
+
+    height:48px;
+
+    margin-bottom:10px;
+
+    color:var(--gold);
+
+    border:1px solid rgba(217,164,65,.55);
+
+    border-radius:12px;
+
+    background:
+        linear-gradient(
+            145deg,
+            rgba(217,164,65,.12),
+            rgba(217,164,65,.025)
+        );
+
+    font-size:25px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    box-shadow:
+        0 0 24px rgba(217,164,65,.07);
+
+}
+
+
+.sidebar-brand-name {
+
+    color:var(--gold);
+
+    font-size:28px;
+
+    font-weight:800;
+
+    letter-spacing:5px;
+
+    line-height:1;
+
+}
+
+
+.sidebar-brand-os {
+
+    margin-top:8px;
+
+    color:var(--muted);
+
+    font-size:10px;
+
+    font-weight:700;
+
+    letter-spacing:2.5px;
+
+}
+
+
+/* =========================================================
+   MAIN NAVIGATION
+   ========================================================= */
+
+.main-menu {
+
+    position:relative;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:0;
+
+    margin-top:28px;
+
+}
+
+
+.main-menu-section {
+
+    margin-bottom:24px;
+
+}
+
+
+.main-menu-section-title {
+
+    margin:0 10px 9px;
+
+    color:var(--muted-strong);
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:2.2px;
+
+    text-transform:uppercase;
+
+}
+
+
+.main-menu a {
+
+    position:relative;
+
+    display:flex;
+
+    align-items:center;
+
+    min-height:50px;
+
+    margin-bottom:5px;
+
+    padding:0 14px;
+
+    border:1px solid transparent;
+
+    border-radius:10px;
+
+    color:var(--text-secondary);
+
+    text-decoration:none;
+
+    font-size:16px;
+
+    font-weight:650;
+
+    letter-spacing:.2px;
+
+    transition:
+        background var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        transform var(--transition-fast);
+
+}
+
+
+.main-menu a:hover {
+
+    background:var(--panel2);
+
+    border-color:var(--border);
+
+    color:var(--gold);
+
+    transform:translateX(2px);
+
+}
+
+
+.main-menu a.active {
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(217,164,65,.14),
+            rgba(217,164,65,.045)
+        );
+
+    border-color:rgba(217,164,65,.32);
+
+    color:var(--gold);
+
+    box-shadow:
+        inset 3px 0 0 var(--gold);
+
+}
+
+
+.main-menu a.active::after {
+
+    content:"";
+
+    position:absolute;
+
+    right:13px;
+
+    width:5px;
+
+    height:5px;
+
+    border-radius:50%;
+
+    background:var(--gold);
+
+    box-shadow:
+        0 0 8px rgba(217,164,65,.65);
+
+}
+
+
+.main-menu-icon {
+
+    display:inline-flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    width:30px;
+
+    min-width:30px;
+
+    margin-right:11px;
+
+    color:var(--muted);
+
+    font-size:19px;
+
+    line-height:1;
+
+    transition:
+        color var(--transition-fast),
+        transform var(--transition-fast);
+
+}
+
+
+.main-menu a:hover .main-menu-icon,
+.main-menu a.active .main-menu-icon {
+
+    color:var(--gold);
+
+}
+
+
+.main-menu a:hover .main-menu-icon {
+
+    transform:scale(1.05);
+
+}
+
+
+.main-menu-label {
+
+    white-space:nowrap;
+
+}
+
+
+/* =========================================================
+   SIDEBAR FOOTER
+   ========================================================= */
+
+.sidebar-footer {
+
+    position:relative;
+
+    margin-top:auto;
+
+    padding:15px 10px 3px;
+
+}
+
+
+.sidebar-footer-line {
+
+    width:100%;
+
+    height:1px;
+
+    margin-bottom:14px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--border),
+            transparent
+        );
+
+}
+
+
+.sidebar-footer-label {
+
+    color:var(--muted-strong);
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:2px;
+
+}
+
+
+.sidebar-footer-status {
+
+    margin-top:5px;
+
+    color:var(--muted);
+
+    font-size:9px;
+
+    font-weight:700;
+
+    letter-spacing:1.5px;
+
+}
+
+
+/* =========================================================
+   MAIN AREA
+   ========================================================= */
+
+.main-area {
+
+    flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+    min-width:0;
+
+    min-height:0;
+
+    background:var(--bg);
+
+}
+
+
+/* =========================================================
+   TOP SYSTEM BAR
+   ========================================================= */
+
+.top-header {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    width:100%;
+
+    min-height:68px;
+
+    height:68px;
+
+    padding:0 28px;
+
+    background:
+        linear-gradient(
+            90deg,
+            var(--header),
+            var(--header2)
+        );
+
+    border-bottom:1px solid var(--border);
+
+    transition:
+        background .2s ease,
+        border-color .2s ease;
+
+}
+
+
+.top-header-left {
+
+    display:flex;
+
+    align-items:center;
+
+    min-width:0;
+
+}
+
+
+.top-header-title {
+
+    color:var(--gold);
+
+    font-size:16px;
+
+    font-weight:800;
+
+    letter-spacing:2.1px;
+
+    white-space:nowrap;
+
+}
+
+
+.top-header-divider {
+
+    width:1px;
+
+    height:20px;
+
+    margin:0 16px;
+
+    background:var(--border);
+
+}
+
+
+.top-header-application {
+
+    overflow:hidden;
+
+    color:var(--muted);
+
+    font-size:11px;
+
+    font-weight:700;
+
+    letter-spacing:1.5px;
+
+    text-overflow:ellipsis;
+
+    text-transform:uppercase;
+
+    white-space:nowrap;
+
+}
+
+
+.top-header-right {
+
+    display:flex;
+
+    align-items:center;
+
+    flex-shrink:0;
+
+}
+
+
+/* =========================================================
+   GLOBAL LANGUAGE / THEME CONTROLS
+   ========================================================= */
+
+.os-control-group {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+}
+
+
+.os-control-label {
+
+    color:var(--muted-strong);
+
+    font-size:9px;
+
+    font-weight:800;
+
+    letter-spacing:1.4px;
+
+    white-space:nowrap;
+
+}
+
+
+/* =========================================================
+   VELES OS DROPDOWN
+   ========================================================= */
+
+.os-control-select {
+
+    position:relative;
+
+    min-width:118px;
+
+    height:34px;
+
+    padding:0 34px 0 12px;
+
+    appearance:none;
+
+    -webkit-appearance:none;
+
+    border:1px solid var(--border);
+
+    border-radius:8px;
+
+    outline:none;
+
+    background-color:var(--control-bg);
+
+    background-image:
+
+        linear-gradient(
+            45deg,
+            transparent 50%,
+            var(--gold) 50%
+        ),
+
+        linear-gradient(
+            135deg,
+            var(--gold) 50%,
+            transparent 50%
+        );
+
+    background-position:
+
+        calc(100% - 14px) 14px,
+        calc(100% - 9px) 14px;
+
+    background-size:
+        5px 5px,
+        5px 5px;
+
+    background-repeat:no-repeat;
+
+    color:var(--control-text);
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:.8px;
+
+    cursor:pointer;
+
+    transition:
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        color var(--transition-fast),
+        box-shadow var(--transition-fast);
+
+}
+
+
+.os-control-select:hover {
+
+    background-color:var(--control-hover);
+
+    border-color:rgba(217,164,65,.55);
+
+    color:var(--gold);
+
+}
+
+
+.os-control-select:focus {
+
+    background-color:var(--control-hover);
+
+    border-color:var(--gold);
+
+    color:var(--gold);
+
+    box-shadow:
+        0 0 0 2px rgba(217,164,65,.12),
+        0 0 14px rgba(217,164,65,.08);
+
+}
+
+
+.os-control-select option {
+
+    background:var(--control-option-bg);
+
+    color:var(--control-text);
+
+}
+
+
+/* =========================================================
+   HEADER SEPARATOR
+   ========================================================= */
+
+.os-header-separator {
+
+    width:1px;
+
+    height:22px;
+
+    margin:0 12px;
+
+    background:var(--border);
+
+}
+
+
+/* =========================================================
+   SYSTEM STATUS
+   ========================================================= */
+
+.system-status {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:var(--green);
+
+    font-size:11px;
+
+    font-weight:800;
+
+    letter-spacing:1.5px;
+
+}
+
+
+.system-status-dot {
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
+    background:var(--green);
+
+    box-shadow:
+        0 0 9px rgba(85,214,107,.65);
+
+}
+
+
+.system-status-separator {
+
+    width:1px;
+
+    height:17px;
+
+    margin:0 14px;
+
+    background:var(--border);
+
+}
+
+
+.system-status-secondary {
+
+    color:var(--muted);
+
+    font-size:10px;
+
+    font-weight:800;
+
+    letter-spacing:1.5px;
+
+}
+
+
+/* =========================================================
+   APPLICATION CONTENT
+   ========================================================= */
+
+.page-container {
+
+    flex:1;
+
+    min-width:0;
+
+    min-height:0;
+
+    padding:24px;
+
+    overflow:auto;
+
+}
+
+
+/* =========================================================
+   CARDS
+   ========================================================= */
+
+.card {
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition);
+
+}
+
+
+/* =========================================================
+   MARKDOWN
+   ========================================================= */
+
+.markdown-body {
+
+    line-height:1.6;
+
+}
+
+
+.markdown-body p {
+
+    margin-bottom:12px;
+
+}
+
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+
+    color:var(--gold);
+
+}
+
+
+.markdown-body code {
+
+    background:var(--code);
+
+    color:var(--gold2);
+
+    padding:3px 7px;
+
+    border-radius:6px;
+
+}
+
+
+.markdown-body pre {
+
+    background:var(--pre);
+
+    border:1px solid var(--border);
+
+    border-left:4px solid var(--gold);
+
+    border-radius:10px;
+
+    padding:18px;
+
+    overflow:auto;
+
+}
+
+
+/* =========================================================
+   SCROLLBARS
+   ========================================================= */
+
+::-webkit-scrollbar {
+
+    width:10px;
+
+    height:10px;
+
+}
+
+
+::-webkit-scrollbar-track {
+
+    background:var(--scroll-track);
+
+}
+
+
+::-webkit-scrollbar-thumb {
+
+    background:var(--scroll-thumb);
+
+    border-radius:10px;
+
+    border:2px solid var(--scroll-track);
+
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+
+    background:var(--scroll-thumb-hover);
+
+}
+
+
+/* =========================================================
+   VELES CHAT CORE
+   ========================================================= */
+
+.chat-container {
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    background:
+        linear-gradient(
+            180deg,
+            var(--panel3),
+            var(--bg)
+        );
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+}
+
+
+.chat-header {
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:20px 25px;
+
+    background:var(--panel);
+
+    border-bottom:1px solid var(--border);
+
+}
+
+
+.chat-header h1 {
+
+    margin:0;
+
+    color:var(--gold);
+
+    font-size:28px;
+
+}
+
+
+.chat-header p {
+
+    margin:5px 0 0;
+
+    color:var(--muted);
+
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-indicator {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    color:var(--green);
+
+    font-weight:600;
+
+}
+
+
+.status-dot {
+
+    width:12px;
+
+    height:12px;
+
+    background:var(--green);
+
+    border-radius:50%;
+
+    box-shadow:
+        0 0 10px var(--green);
+
+}
+
+
+/* =========================================================
+   CHAT HISTORY
+   ========================================================= */
+
+.chat-window {
+
+    flex:1;
+
+    padding:25px;
+
+    overflow-y:auto;
+
+}
+
+
+.message {
+
+    max-width:80%;
+
+    padding:16px 20px;
+
+    border-radius:14px;
+
+    line-height:1.6;
+
+    margin-bottom:16px;
+
+}
+
+
+.message.user {
+
+    margin-left:auto;
+
+    background:var(--panel2);
+
+    border:1px solid var(--border);
+
+}
+
+
+.message.assistant {
+
+    margin-right:auto;
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+}
+
+
+.message-role {
+
+    color:var(--gold);
+
+    font-size:13px;
+
+    font-weight:700;
+
+    margin-bottom:8px;
+
+    text-transform:uppercase;
+
+}
+
+
+.message-text {
+
+    color:var(--text);
+
+}
+
+
+/* =========================================================
+   EMPTY CHAT
+   ========================================================= */
+
+.empty-chat {
+
+    height:100%;
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    text-align:center;
+
+    color:var(--muted);
+
+}
+
+
+.empty-chat h2 {
+
+    color:var(--gold);
+
+}
+
+
+/* =========================================================
+   CHAT INPUT
+   ========================================================= */
+
+.chat-input {
+
+    background:var(--panel);
+
+    border-top:1px solid var(--border);
+
+    padding:15px;
+
+}
+
+
+#question {
+
+    width:100%;
+
+    min-height:70px;
+
+    max-height:160px;
+
+    resize:vertical;
+
+    background:var(--input);
+
+    color:var(--text);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:15px 18px;
+
+    font-size:16px;
+
+    outline:none;
+
+}
+
+
+#question::placeholder {
+
+    color:var(--muted);
+
+}
+
+
+#question:focus {
+
+    border-color:var(--gold);
+
+}
+
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+.chat-buttons {
+
+    display:flex;
+
+    gap:12px;
+
+    margin-top:15px;
+
+}
+
+
+.chat-buttons button {
+
+    padding:12px 18px;
+
+    border-radius:10px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        color var(--transition),
+        opacity var(--transition);
+
+}
+
+
+.btn-primary {
+
+    background:var(--gold);
+
+    color:var(--control-option-bg);
+
+    border:none;
+
+}
+
+
+.btn-secondary {
+
+    background:var(--button-secondary);
+
+    color:var(--text);
+
+    border:1px solid var(--border);
+
+}
+
+
+.btn-secondary:hover,
+.btn-primary:hover {
+
+    opacity:.85;
+
+}
+
+
+/* =========================================================
+   VOICE
+   ========================================================= */
+
+#voice-button {
+
+    color:var(--gold2);
+
+}
+
+
+/* =========================================================
+   NEW CHAT
+   ========================================================= */
+
+#new-chat-button {
+
+    color:var(--text);
+
+}
+
+
+/* =========================================================
+   THINKING OVERLAY
+   ========================================================= */
+
+#thinking-overlay {
+
+    position:fixed;
+
+    inset:0;
+
+    display:none;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:var(--overlay);
+
+    z-index:9999;
+
+}
+
+
+/* =========================================================
+   VELES DASHBOARD BASIC STYLE
+   ========================================================= */
+
+.veles-dashboard {
+
+    width:100%;
+
+    min-height:700px;
+
+}
+
+
+.operations-map {
+
+    position:relative;
+
+    min-height:650px;
+
+}
+
+
+.node {
+
+    background:var(--panel);
+
+    border:1px solid var(--border);
+
+    border-radius:16px;
+
+    padding:20px;
+
+    text-align:center;
+
+    color:var(--text);
+
+    font-weight:700;
+
+    transition:
+        background var(--transition),
+        border-color var(--transition),
+        box-shadow var(--transition);
+
+}
+
+
+.node:hover {
+
+    border-color:var(--gold);
+
+    box-shadow:
+        0 0 20px rgba(217,164,65,.25);
+
+}
+
+
+.node-status {
+
+    margin-top:8px;
+
+    color:var(--green);
+
+    font-size:12px;
+
+}
+
+
+.core {
+
+    border:2px solid var(--gold);
+
+}
+
+
+/* =========================================================
+   GLOBAL FORM CONTROLS
+   ========================================================= */
+
+input,
+textarea,
+select {
+
+    background:var(--input);
+
+    color:var(--text);
+
+    border:1px solid var(--border);
+
+}
+
+
+input:focus,
+textarea:focus,
+select:focus {
+
+    outline:none;
+
+    border-color:var(--gold);
+
+}
+
+
+/* =========================================================
+   RESPONSIVE OS SHELL
+   ========================================================= */
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media (max-width:1100px) {
+
+    .sidebar {
+
+        width:240px;
+
+        min-width:240px;
+
+        padding-left:14px;
+
+        padding-right:14px;
+
+    }
+
+
+    .sidebar-brand-name {
+
+        font-size:24px;
+
+        letter-spacing:4px;
+
+    }
+
+
+    .main-menu a {
+
+        font-size:14px;
+
+        min-height:47px;
+
+    }
+
+
+    .page-container {
+
+        padding:18px;
+
+    }
+
+
+    .top-header {
+
+        padding-left:18px;
+
+        padding-right:18px;
+
+    }
+
+
+    .top-header-title {
+
+        font-size:13px;
+
+        letter-spacing:1.5px;
+
+    }
+
+
+    .os-control-label {
+
+        display:none;
+
+    }
+
+
+    .os-control-select {
+
+        min-width:105px;
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width:700px) {
+
+    html,
+    body {
+
+        width:100%;
+
+        min-width:0;
+
+        height:auto;
+
+        min-height:100%;
+
+    }
+
+
+    body {
+
+        overflow-x:hidden;
+
+        overflow-y:auto;
+
+    }
+
+
+    /* -----------------------------------------------------
+       MAIN APPLICATION
+       ----------------------------------------------------- */
+
+    .app-layout {
+
+        display:flex;
+
+        flex-direction:column;
+
+        width:100%;
+
+        min-width:0;
+
+        height:auto;
+
+        min-height:100vh;
+
+        overflow:visible;
+
+    }
+
+
+    /* -----------------------------------------------------
+       SIDEBAR
+       ----------------------------------------------------- */
+
+    .sidebar {
+
+        position:relative;
+
+        display:flex;
+
+        flex-direction:column;
+
+        width:100%;
+
+        min-width:0;
+
+        height:auto;
+
+        min-height:0;
+
+        padding:12px;
+
+        overflow:visible;
+
+        border-right:none;
+
+        border-bottom:1px solid var(--border);
+
+    }
+
+
+    /* -----------------------------------------------------
+       BRAND
+       ----------------------------------------------------- */
+
+    .sidebar-brand {
+
+        display:flex;
+
+        flex-direction:row;
+
+        align-items:center;
+
+        justify-content:flex-start;
+
+        width:100%;
+
+        padding:4px 4px 12px;
+
+    }
+
+
+    .sidebar-brand-mark {
+
+        flex:0 0 auto;
+
+        width:38px;
+
+        height:38px;
+
+        margin:0 10px 0 0;
+
+        border-radius:10px;
+
+        font-size:19px;
+
+    }
+
+
+    .sidebar-brand-name {
+
+        flex:0 0 auto;
+
+        font-size:21px;
+
+        letter-spacing:3px;
+
+    }
+
+
+    .sidebar-brand-os {
+
+        margin:0 0 0 10px;
+
+        padding-left:10px;
+
+        border-left:1px solid var(--border);
+
+        font-size:7px;
+
+        letter-spacing:1.5px;
+
+        white-space:nowrap;
+
+    }
+
+
+    /* -----------------------------------------------------
+       NAVIGATION
+       ----------------------------------------------------- */
+
+    .main-menu {
+
+        display:grid;
+
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+
+        width:100%;
+
+        gap:8px;
+
+        margin-top:12px;
+
+    }
+
+
+    .main-menu-section {
+
+        min-width:0;
+
+        margin:0;
+
+    }
+
+
+    .main-menu-section-title {
+
+        margin:
+            0 7px 5px;
+
+        font-size:9px;
+
+        letter-spacing:1.5px;
+
+    }
+
+
+    .main-menu a {
+
+        display:flex;
+
+        align-items:center;
+
+        width:100%;
+
+        min-width:0;
+
+        min-height:44px;
+
+        margin:0 0 4px;
+
+        padding:0 9px;
+
+        border-radius:9px;
+
+        font-size:12px;
+
+        font-weight:700;
+
+    }
+
+
+    .main-menu-icon {
+
+        flex:0 0 auto;
+
+        width:23px;
+
+        min-width:23px;
+
+        margin-right:6px;
+
+        font-size:15px;
+
+    }
+
+
+    .main-menu-label {
+
+        min-width:0;
+
+        overflow:hidden;
+
+        text-overflow:ellipsis;
+
+        white-space:nowrap;
+
+    }
+
+
+    .main-menu a.active::after {
+
+        right:8px;
+
+        width:4px;
+
+        height:4px;
+
+    }
+
+
+    /* -----------------------------------------------------
+       SIDEBAR FOOTER
+       ----------------------------------------------------- */
+
+    .sidebar-footer {
+
+        display:none;
+
+    }
+
+
+    /* -----------------------------------------------------
+       MAIN AREA
+       ----------------------------------------------------- */
+
+    .main-area {
+
+        display:flex;
+
+        flex-direction:column;
+
+        width:100%;
+
+        min-width:0;
+
+        min-height:calc(100vh - 180px);
+
+    }
+
+
+    /* -----------------------------------------------------
+       TOP HEADER
+       ----------------------------------------------------- */
+
+    .top-header {
+
+        display:flex;
+
+        flex-direction:row;
+
+        align-items:center;
+
+        justify-content:space-between;
+
+        width:100%;
+
+        min-width:0;
+
+        min-height:58px;
+
+        height:auto;
+
+        padding:9px 12px;
+
+        gap:8px;
+
+    }
+
+
+    .top-header-left {
+
+        flex:1 1 auto;
+
+        min-width:0;
+
+        overflow:hidden;
+
+    }
+
+
+    .top-header-title {
+
+        min-width:0;
+
+        overflow:hidden;
+
+        font-size:11px;
+
+        letter-spacing:1.2px;
+
+        text-overflow:ellipsis;
+
+        white-space:nowrap;
+
+    }
+
+
+    .top-header-divider,
+    .top-header-application {
+
+        display:none;
+
+    }
+
+
+    .top-header-right {
+
+        display:flex;
+
+        align-items:center;
+
+        flex:0 0 auto;
+
+        gap:3px;
+
+        min-width:0;
+
+    }
+
+
+    /* -----------------------------------------------------
+       LANGUAGE / THEME
+       ----------------------------------------------------- */
+
+    .os-control-group {
+
+        display:flex;
+
+        align-items:center;
+
+        gap:3px;
+
+    }
+
+
+    .os-control-label {
+
+        display:none;
+
+    }
+
+
+    .os-control-select {
+
+        width:auto;
+
+        min-width:78px;
+
+        max-width:86px;
+
+        height:30px;
+
+        padding:
+            0 25px 0 7px;
+
+        font-size:9px;
+
+        letter-spacing:.4px;
+
+        border-radius:7px;
+
+        background-position:
+            calc(100% - 10px) 11px,
+            calc(100% - 6px) 11px;
+
+    }
+
+
+    .os-header-separator {
+
+        width:1px;
+
+        height:20px;
+
+        margin:0 2px;
+
+    }
+
+
+    /* -----------------------------------------------------
+       SYSTEM STATUS
+       ----------------------------------------------------- */
+
+    .system-status {
+
+        display:flex;
+
+        align-items:center;
+
+        gap:5px;
+
+        font-size:9px;
+
+        letter-spacing:1px;
+
+        white-space:nowrap;
+
+    }
+
+
+    .system-status-dot {
+
+        width:6px;
+
+        height:6px;
+
+    }
+
+
+    .system-status-separator,
+    .system-status-secondary {
+
+        display:none;
+
+    }
+
+
+    /* -----------------------------------------------------
+       PAGE CONTENT
+       ----------------------------------------------------- */
+
+    .page-container {
+
+        flex:1 1 auto;
+
+        width:100%;
+
+        min-width:0;
+
+        min-height:0;
+
+        padding:12px;
+
+        overflow-x:hidden;
+
+        overflow-y:visible;
+
+    }
+
+
+    /* -----------------------------------------------------
+       GLOBAL MOBILE WIDTH PROTECTION
+       ----------------------------------------------------- */
+
+    .card,
+    .chat-container,
+    .veles-dashboard {
+
+        max-width:100%;
+
+        min-width:0;
+
+    }
+
+
+    /* -----------------------------------------------------
+       CHAT
+       ----------------------------------------------------- */
+
+    .chat-container {
+
+        height:auto;
+
+        min-height:calc(100vh - 240px);
+
+        border-radius:12px;
+
+    }
+
+
+    .chat-header {
+
+        flex-wrap:wrap;
+
+        gap:10px;
+
+        padding:15px;
+
+    }
+
+
+    .chat-header h1 {
+
+        font-size:21px;
+
+    }
+
+
+    .chat-header p {
+
+        font-size:12px;
+
+    }
+
+
+    .chat-window {
+
+        min-height:240px;
+
+        padding:15px;
+
+    }
+
+
+    .message {
+
+        max-width:92%;
+
+        padding:12px 14px;
+
+        font-size:14px;
+
+    }
+
+
+    .chat-input {
+
+        padding:10px;
+
+    }
+
+
+    #question {
+
+        min-height:60px;
+
+        max-height:140px;
+
+        padding:12px 14px;
+
+        font-size:15px;
+
+    }
+
+
+    .chat-buttons {
+
+        display:flex;
+
+        flex-wrap:wrap;
+
+        gap:8px;
+
+        margin-top:10px;
+
+    }
+
+
+    .chat-buttons button {
+
+        min-height:42px;
+
+        padding:10px 14px;
+
+    }
+
+
+    /* -----------------------------------------------------
+       DASHBOARD
+       ----------------------------------------------------- */
+
+    .veles-dashboard {
+
+        min-height:0;
+
+        width:100%;
+
+    }
+
+
+    .operations-map {
+
+        min-height:0;
+
+        width:100%;
+
+    }
+
+
+    /* -----------------------------------------------------
+       TABLES / WIDE CONTENT
+       ----------------------------------------------------- */
+
+    table {
+
+        max-width:100%;
+
+    }
+
+
+    /* -----------------------------------------------------
+       TOUCH TARGETS
+       ----------------------------------------------------- */
+
+    button,
+    select,
+    a {
+
+        -webkit-tap-highlight-color:
+            rgba(217,164,65,.12);
+
+    }
+
+
+    .main-menu a,
+    .chat-buttons button,
+    .os-control-select {
+
+        touch-action:manipulation;
+
+    }
+
+}
+
+
+/* =========================================================
+   SMALL PHONE
+   ========================================================= */
+
+@media (max-width:430px) {
+
+    .sidebar {
+
+        padding:10px;
+
+    }
+
+
+    .sidebar-brand {
+
+        padding-left:2px;
+
+        padding-right:2px;
+
+    }
+
+
+    .sidebar-brand-mark {
+
+        width:34px;
+
+        height:34px;
+
+        margin-right:8px;
+
+        font-size:17px;
+
+    }
+
+
+    .sidebar-brand-name {
+
+        font-size:18px;
+
+        letter-spacing:2.5px;
+
+    }
+
+
+    .sidebar-brand-os {
+
+        margin-left:7px;
+
+        padding-left:7px;
+
+        font-size:6px;
+
+        letter-spacing:1px;
+
+    }
+
+
+    .main-menu {
+
+        gap:6px;
+
+    }
+
+
+    .main-menu-section-title {
+
+        margin-left:5px;
+
+        font-size:8px;
+
+        letter-spacing:1.2px;
+
+    }
+
+
+    .main-menu a {
+
+        min-height:42px;
+
+        padding:0 7px;
+
+        font-size:11px;
+
+    }
+
+
+    .main-menu-icon {
+
+        width:20px;
+
+        min-width:20px;
+
+        margin-right:5px;
+
+        font-size:14px;
+
+    }
+
+
+    .top-header {
+
+        padding:
+            8px 9px;
+
+    }
+
+
+    .top-header-title {
+
+        font-size:10px;
+
+        letter-spacing:.8px;
+
+    }
+
+
+    .os-control-select {
+
+        min-width:70px;
+
+        max-width:76px;
+
+        height:29px;
+
+        font-size:8px;
+
+    }
+
+
+    .system-status {
+
+        font-size:8px;
+
+    }
+
+
+    .page-container {
+
+        padding:9px;
+
+    }
+
+
+    .chat-header {
+
+        padding:12px;
+
+    }
+
+
+    .chat-header h1 {
+
+        font-size:19px;
+
+    }
+
+
+    .chat-window {
+
+        padding:10px;
+
+    }
+
+
+    .message {
+
+        max-width:96%;
+
+        font-size:13px;
+
+    }
+
+}
+
+
+/* =========================================================
+   VERY SMALL PHONE
+   ========================================================= */
+
+@media (max-width:360px) {
+
+    .sidebar-brand-os {
+
+        display:none;
+
+    }
+
+
+    .sidebar-brand-name {
+
+        font-size:17px;
+
+    }
+
+
+    .main-menu {
+
+        grid-template-columns:
+            1fr 1fr;
+
+        gap:5px;
+
+    }
+
+
+    .main-menu a {
+
+        min-height:40px;
+
+        font-size:10px;
+
+    }
+
+
+    .main-menu-icon {
+
+        width:18px;
+
+        min-width:18px;
+
+        margin-right:4px;
+
+        font-size:13px;
+
+    }
+
+
+    .os-control-select {
+
+        min-width:65px;
+
+        max-width:70px;
+
+        padding-left:6px;
+
+        padding-right:22px;
+
+        font-size:8px;
+
+    }
+
+
+    .system-status {
+
+        display:none;
+
+    }
+
+}

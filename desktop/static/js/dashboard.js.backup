@@ -1,0 +1,1825 @@
+/*
+VELES OPERATIONS MAP
+
+Dynamic connection engine
++
+VELES AI Core energy being
+
+Canvas particle animation
+*/
+
+let velesHologram = null;
+
+
+/* =========================================================
+   CONNECTION ENGINE
+   ========================================================= */
+
+function updateVelesConnections() {
+
+    const map =
+        document.querySelector(
+            ".operations-map"
+        );
+
+    const svg =
+        document.querySelector(
+            ".connection-lines"
+        );
+
+    const core =
+        document.querySelector(
+            ".core"
+        );
+
+    if (!map || !svg || !core) {
+        return;
+    }
+
+    const mapRect =
+        map.getBoundingClientRect();
+
+    const coreRect =
+        core.getBoundingClientRect();
+
+    const centerX =
+        coreRect.left -
+        mapRect.left +
+        coreRect.width / 2;
+
+    const centerY =
+        coreRect.top -
+        mapRect.top +
+        coreRect.height / 2;
+
+    const lines =
+        svg.querySelectorAll(
+            ".data-line"
+        );
+
+    lines.forEach(
+        line => {
+
+            const targetName =
+                line.dataset.target;
+
+            const target =
+                document.querySelector(
+                    "." + targetName
+                );
+
+            if (!target) {
+                return;
+            }
+
+            const targetRect =
+                target.getBoundingClientRect();
+
+            const targetX =
+                targetRect.left -
+                mapRect.left +
+                targetRect.width / 2;
+
+            const targetY =
+                targetRect.top -
+                mapRect.top +
+                targetRect.height / 2;
+
+            line.setAttribute(
+                "x1",
+                centerX
+            );
+
+            line.setAttribute(
+                "y1",
+                centerY
+            );
+
+            line.setAttribute(
+                "x2",
+                targetX
+            );
+
+            line.setAttribute(
+                "y2",
+                targetY
+            );
+        }
+    );
+}
+
+
+/* =========================================================
+   VELES AI ENERGY BEING
+   ========================================================= */
+
+class VelesHologram {
+
+    constructor(container) {
+
+        this.container = container;
+
+        this.canvas =
+            document.createElement(
+                "canvas"
+            );
+
+        this.canvas.className =
+            "veles-hologram-canvas";
+
+        this.ctx =
+            this.canvas.getContext("2d");
+
+        this.particles = [];
+
+        this.ambientParticles = [];
+
+        this.energyNodes = [];
+
+        this.time = 0;
+
+        this.width = 0;
+
+        this.height = 0;
+
+        this.centerX = 0;
+
+        this.centerY = 0;
+
+        this.scale = 1;
+
+        this.resizeObserver =
+            new ResizeObserver(
+                () => this.resize()
+            );
+
+        this.container.prepend(
+            this.canvas
+        );
+
+        this.resizeObserver.observe(
+            this.container
+        );
+
+        this.resize();
+
+        this.createParticles();
+
+        this.createAmbientParticles();
+
+        this.createEnergyNodes();
+
+        requestAnimationFrame(
+            time =>
+                this.animate(time)
+        );
+    }
+
+
+    /* =====================================================
+       RESIZE
+       ===================================================== */
+
+    resize() {
+
+        const rect =
+            this.container.getBoundingClientRect();
+
+        const dpr =
+            Math.min(
+                window.devicePixelRatio || 1,
+                2
+            );
+
+        this.width =
+            rect.width;
+
+        this.height =
+            rect.height;
+
+        this.canvas.width =
+            this.width * dpr;
+
+        this.canvas.height =
+            this.height * dpr;
+
+        this.canvas.style.width =
+            this.width + "px";
+
+        this.canvas.style.height =
+            this.height + "px";
+
+        this.ctx.setTransform(
+            dpr,
+            0,
+            0,
+            dpr,
+            0,
+            0
+        );
+
+        this.centerX =
+            this.width / 2;
+
+        this.centerY =
+            this.height / 2;
+
+        this.scale =
+            Math.min(
+                this.width / 620,
+                this.height / 620
+            );
+    }
+
+
+    /* =====================================================
+       PARTICLE CREATION
+       ===================================================== */
+
+    createParticles() {
+
+        this.particles = [];
+
+        const count = 5200;
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            const point =
+                this.randomBodyPoint();
+
+            this.particles.push({
+
+                x: point.x,
+
+                y: point.y,
+
+                baseX: point.x,
+
+                baseY: point.y,
+
+                size:
+                    0.55 +
+                    Math.random() * 1.65,
+
+                alpha:
+                    0.22 +
+                    Math.random() * 0.68,
+
+                phase:
+                    Math.random() *
+                    Math.PI * 2,
+
+                drift:
+                    1.2 +
+                    Math.random() * 5,
+
+                type:
+                    point.type
+            });
+        }
+    }
+
+
+    /* =====================================================
+       ENERGY NODES
+       ===================================================== */
+
+    createEnergyNodes() {
+
+        this.energyNodes = [
+
+            {
+                x: -245,
+                y: -210,
+                radius: 4,
+                phase: 0.2
+            },
+
+            {
+                x: 235,
+                y: -170,
+                radius: 5,
+                phase: 1.4
+            },
+
+            {
+                x: -285,
+                y: -55,
+                radius: 3.5,
+                phase: 2.2
+            },
+
+            {
+                x: 275,
+                y: 25,
+                radius: 4.5,
+                phase: 3.1
+            },
+
+            {
+                x: -245,
+                y: 150,
+                radius: 4,
+                phase: 4.3
+            },
+
+            {
+                x: 250,
+                y: 175,
+                radius: 3.5,
+                phase: 5.2
+            },
+
+            {
+                x: -175,
+                y: 245,
+                radius: 3,
+                phase: 0.8
+            },
+
+            {
+                x: 175,
+                y: 255,
+                radius: 4,
+                phase: 2.8
+            }
+        ];
+    }
+
+
+    /* =====================================================
+       AMBIENT PARTICLES
+       ===================================================== */
+
+    createAmbientParticles() {
+
+        this.ambientParticles = [];
+
+        const count = 240;
+
+        for (
+            let i = 0;
+            i < count;
+            i++
+        ) {
+
+            this.ambientParticles.push({
+
+                angle:
+                    Math.random() *
+                    Math.PI * 2,
+
+                radius:
+                    190 +
+                    Math.random() * 150,
+
+                y:
+                    -330 +
+                    Math.random() * 570,
+
+                phase:
+                    Math.random() *
+                    Math.PI * 2,
+
+                speed:
+                    0.00015 +
+                    Math.random() * 0.00035,
+
+                size:
+                    0.5 +
+                    Math.random() * 1.4,
+
+                alpha:
+                    0.10 +
+                    Math.random() * 0.30
+            });
+        }
+    }
+
+
+    /* =====================================================
+       HUMAN / ENERGY BEING GEOMETRY
+       ===================================================== */
+
+    randomBodyPoint() {
+
+        const r =
+            Math.random();
+
+
+        /*
+         * HEAD
+         */
+
+        if (r < 0.34) {
+
+            const angle =
+                Math.random() *
+                Math.PI * 2;
+
+            const radius =
+                Math.sqrt(
+                    Math.random()
+                );
+
+            const width = 112;
+
+            const height = 145;
+
+            return {
+
+                x:
+                    Math.cos(angle) *
+                    radius *
+                    width,
+
+                y:
+                    -205 +
+                    Math.sin(angle) *
+                    radius *
+                    height,
+
+                type:
+                    "head"
+            };
+        }
+
+
+        /*
+         * FACE / FRONT PLANES
+         */
+
+        if (r < 0.46) {
+
+            const x =
+                (
+                    Math.random() -
+                    0.5
+                ) *
+                170;
+
+            const y =
+                -270 +
+                Math.random() *
+                135;
+
+            return {
+
+                x,
+                y,
+
+                type:
+                    "face"
+            };
+        }
+
+
+        /*
+         * EARS
+         */
+
+        if (r < 0.52) {
+
+            const side =
+                Math.random() < 0.5
+                    ? -1
+                    : 1;
+
+            return {
+
+                x:
+                    side *
+                    (
+                        108 +
+                        Math.random() * 23
+                    ),
+
+                y:
+                    -205 +
+                    (
+                        Math.random() -
+                        0.5
+                    ) *
+                    75,
+
+                type:
+                    "ear"
+            };
+        }
+
+
+        /*
+         * NECK
+         */
+
+        if (r < 0.62) {
+
+            return {
+
+                x:
+                    (
+                        Math.random() -
+                        0.5
+                    ) *
+                    82,
+
+                y:
+                    -105 +
+                    Math.random() * 125,
+
+                type:
+                    "neck"
+            };
+        }
+
+
+        /*
+         * SHOULDERS
+         *
+         * Wider and heavier than before.
+         */
+
+        if (r < 0.82) {
+
+            const side =
+                Math.random() < 0.5
+                    ? -1
+                    : 1;
+
+            const shoulderProgress =
+                Math.random();
+
+            const shoulderWidth =
+                72 +
+                shoulderProgress *
+                195;
+
+            return {
+
+                x:
+                    side *
+                    shoulderWidth,
+
+                y:
+                    15 +
+                    shoulderProgress *
+                    90 +
+                    (
+                        Math.random() -
+                        0.5
+                    ) *
+                    38,
+
+                type:
+                    "shoulder"
+            };
+        }
+
+
+        /*
+         * UPPER CHEST
+         */
+
+        const chestY =
+            20 +
+            Math.random() *
+            165;
+
+        const chestWidth =
+            265 -
+            (
+                chestY - 20
+            ) *
+            0.42;
+
+        return {
+
+            x:
+                (
+                    Math.random() -
+                    0.5
+                ) *
+                chestWidth,
+
+            y:
+                chestY,
+
+            type:
+                "chest"
+        };
+    }
+
+
+    /* =====================================================
+       PARTICLE UPDATE
+       ===================================================== */
+
+    updateParticle(
+        particle
+    ) {
+
+        const breath =
+            Math.sin(
+                this.time * 0.00125
+            );
+
+        let breathing = 1;
+
+        if (
+            particle.type === "chest" ||
+            particle.type === "shoulder"
+        ) {
+
+            breathing =
+                1 +
+                breath *
+                0.035;
+        }
+
+
+        const energyWave =
+            Math.sin(
+                this.time * 0.0025 -
+                particle.baseY * 0.018 +
+                particle.phase
+            );
+
+
+        const driftX =
+            Math.cos(
+                this.time * 0.0012 +
+                particle.phase
+            ) *
+            particle.drift;
+
+        const driftY =
+            Math.sin(
+                this.time * 0.0016 +
+                particle.phase
+            ) *
+            particle.drift;
+
+
+        let bodyX = 0;
+
+        let bodyY = 0;
+
+        if (
+            particle.type === "shoulder" ||
+            particle.type === "chest"
+        ) {
+
+            bodyX =
+                Math.sign(
+                    particle.baseX
+                ) *
+                Math.abs(
+                    particle.baseX
+                ) *
+                breath *
+                0.022;
+
+            bodyY =
+                breath *
+                2.2;
+        }
+
+
+        particle.x =
+            particle.baseX *
+            breathing +
+            driftX +
+            energyWave *
+            2.2 +
+            bodyX;
+
+        particle.y =
+            particle.baseY *
+            breathing +
+            driftY +
+            energyWave *
+            3.5 +
+            bodyY;
+    }
+
+
+    /* =====================================================
+       DRAW PARTICLES
+       ===================================================== */
+
+    drawParticle(
+        particle
+    ) {
+
+        const ctx =
+            this.ctx;
+
+        const x =
+            this.centerX +
+            particle.x *
+            this.scale;
+
+        const y =
+            this.centerY +
+            particle.y *
+            this.scale;
+
+        const pulse =
+            0.72 +
+            Math.sin(
+                this.time * 0.003 +
+                particle.phase
+            ) *
+            0.28;
+
+        const size =
+            particle.size *
+            pulse;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            size,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            `rgba(217,164,65,${
+                particle.alpha *
+                pulse
+            })`;
+
+        ctx.shadowBlur =
+            7;
+
+        ctx.shadowColor =
+            "rgba(217,164,65,.8)";
+
+        ctx.fill();
+    }
+
+
+    /* =====================================================
+       FACE
+       ===================================================== */
+
+    drawFace() {
+
+        const ctx =
+            this.ctx;
+
+        const headY =
+            this.centerY -
+            205 *
+            this.scale;
+
+        const eyeY =
+            headY -
+            4 *
+            this.scale;
+
+        const eyeDistance =
+            34 *
+            this.scale;
+
+        const eyePulse =
+            0.65 +
+            Math.sin(
+                this.time * 0.004
+            ) *
+            0.25;
+
+        ctx.save();
+
+        ctx.shadowBlur = 18;
+
+        ctx.shadowColor =
+            "rgba(255,220,130,.95)";
+
+        ctx.fillStyle =
+            `rgba(255,225,150,${eyePulse})`;
+
+
+        /*
+         * LEFT EYE
+         */
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            this.centerX -
+            eyeDistance,
+
+            eyeY,
+
+            10 *
+            this.scale,
+
+            4 *
+            this.scale,
+
+            -0.08,
+
+            0,
+
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        /*
+         * RIGHT EYE
+         */
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            this.centerX +
+            eyeDistance,
+
+            eyeY,
+
+            10 *
+            this.scale,
+
+            4 *
+            this.scale,
+
+            0.08,
+
+            0,
+
+            Math.PI * 2
+        );
+
+        ctx.fill();
+
+
+        /*
+         * EARS
+         */
+
+        ctx.shadowBlur = 10;
+
+        ctx.strokeStyle =
+            "rgba(255,220,140,.38)";
+
+        ctx.lineWidth =
+            1.4 *
+            this.scale;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.centerX -
+            111 *
+            this.scale,
+
+            headY +
+            5 *
+            this.scale,
+
+            15 *
+            this.scale,
+
+            -Math.PI / 2,
+
+            Math.PI / 2
+        );
+
+        ctx.stroke();
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.centerX +
+            111 *
+            this.scale,
+
+            headY +
+            5 *
+            this.scale,
+
+            15 *
+            this.scale,
+
+            Math.PI / 2,
+
+            -Math.PI / 2
+        );
+
+        ctx.stroke();
+
+
+        /*
+         * NOSE
+         */
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            this.centerX,
+            headY +
+            8 *
+            this.scale
+        );
+
+        ctx.lineTo(
+            this.centerX -
+            6 *
+            this.scale,
+
+            headY +
+            46 *
+            this.scale
+        );
+
+        ctx.lineTo(
+            this.centerX +
+            7 *
+            this.scale,
+
+            headY +
+            48 *
+            this.scale
+        );
+
+        ctx.strokeStyle =
+            "rgba(255,220,140,.34)";
+
+        ctx.lineWidth =
+            1.2 *
+            this.scale;
+
+        ctx.stroke();
+
+
+        /*
+         * MOUTH
+         */
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            this.centerX -
+            20 *
+            this.scale,
+
+            headY +
+            73 *
+            this.scale
+        );
+
+        ctx.quadraticCurveTo(
+            this.centerX,
+
+            headY +
+            78 *
+            this.scale,
+
+            this.centerX +
+            20 *
+            this.scale,
+
+            headY +
+            73 *
+            this.scale
+        );
+
+        ctx.strokeStyle =
+            "rgba(255,220,140,.28)";
+
+        ctx.lineWidth =
+            1 *
+            this.scale;
+
+        ctx.stroke();
+
+        ctx.restore();
+    }
+
+
+    /* =====================================================
+       CENTRAL CHEST CORE
+       ===================================================== */
+
+    drawCore() {
+
+        const ctx =
+            this.ctx;
+
+        const x =
+            this.centerX;
+
+        const y =
+            this.centerY +
+            92 *
+            this.scale;
+
+        const pulse =
+            (
+                Math.sin(
+                    this.time * 0.0022
+                ) + 1
+            ) / 2;
+
+        const radius =
+            (
+                27 +
+                pulse * 7
+            ) *
+            this.scale;
+
+
+        /*
+         * Outer energy field
+         */
+
+        const outer =
+            ctx.createRadialGradient(
+                x,
+                y,
+                0,
+
+                x,
+                y,
+                105 *
+                this.scale
+            );
+
+        outer.addColorStop(
+            0,
+            `rgba(255,235,170,${
+                0.32 +
+                pulse * 0.18
+            })`
+        );
+
+        outer.addColorStop(
+            0.22,
+            "rgba(217,164,65,.20)"
+        );
+
+        outer.addColorStop(
+            0.55,
+            "rgba(217,164,65,.06)"
+        );
+
+        outer.addColorStop(
+            1,
+            "rgba(217,164,65,0)"
+        );
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            105 *
+            this.scale,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            outer;
+
+        ctx.fill();
+
+
+        /*
+         * Core rings
+         */
+
+        ctx.save();
+
+        ctx.translate(
+            x,
+            y
+        );
+
+        ctx.rotate(
+            this.time *
+            0.00045
+        );
+
+        ctx.strokeStyle =
+            "rgba(255,225,150,.65)";
+
+        ctx.lineWidth =
+            1.2 *
+            this.scale;
+
+        ctx.shadowBlur =
+            15;
+
+        ctx.shadowColor =
+            "rgba(217,164,65,.85)";
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            0,
+            0,
+            57 *
+            this.scale,
+            23 *
+            this.scale,
+            0,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.stroke();
+
+        ctx.rotate(
+            Math.PI / 2
+        );
+
+        ctx.beginPath();
+
+        ctx.ellipse(
+            0,
+            0,
+            57 *
+            this.scale,
+            23 *
+            this.scale,
+            0,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.stroke();
+
+        ctx.restore();
+
+
+        /*
+         * Core itself
+         */
+
+        const coreGradient =
+            ctx.createRadialGradient(
+                x -
+                5 *
+                this.scale,
+
+                y -
+                5 *
+                this.scale,
+
+                2 *
+                this.scale,
+
+                x,
+                y,
+
+                radius
+            );
+
+        coreGradient.addColorStop(
+            0,
+            "rgba(255,252,220,1)"
+        );
+
+        coreGradient.addColorStop(
+            0.25,
+            "rgba(255,231,155,.98)"
+        );
+
+        coreGradient.addColorStop(
+            0.58,
+            "rgba(217,164,65,.82)"
+        );
+
+        coreGradient.addColorStop(
+            1,
+            "rgba(217,164,65,.08)"
+        );
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            coreGradient;
+
+        ctx.shadowBlur =
+            35;
+
+        ctx.shadowColor =
+            "rgba(217,164,65,1)";
+
+        ctx.fill();
+
+
+        /*
+         * Inner Core
+         */
+
+        ctx.beginPath();
+
+        ctx.arc(
+            x,
+            y,
+            9 *
+            this.scale,
+
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            "rgba(255,250,215,.98)";
+
+        ctx.shadowBlur =
+            25;
+
+        ctx.fill();
+
+
+        ctx.shadowBlur = 0;
+    }
+
+
+    /* =====================================================
+       ENERGY NODES + NODE -> CORE CONNECTIONS
+       ===================================================== */
+
+    drawEnergyNodes() {
+
+        const ctx =
+            this.ctx;
+
+        const coreX =
+            this.centerX;
+
+        const coreY =
+            this.centerY +
+            92 *
+            this.scale;
+
+        ctx.save();
+
+        this.energyNodes.forEach(
+            node => {
+
+                const pulse =
+                    0.7 +
+                    (
+                        Math.sin(
+                            this.time * 0.003 +
+                            node.phase
+                        ) + 1
+                    ) *
+                    0.15;
+
+                const x =
+                    this.centerX +
+                    node.x *
+                    this.scale;
+
+                const y =
+                    this.centerY +
+                    node.y *
+                    this.scale;
+
+
+                /*
+                 * Dynamic energy connection
+                 */
+
+                const gradient =
+                    ctx.createLinearGradient(
+                        x,
+                        y,
+                        coreX,
+                        coreY
+                    );
+
+                gradient.addColorStop(
+                    0,
+                    "rgba(217,164,65,0)"
+                );
+
+                gradient.addColorStop(
+                    0.45,
+                    `rgba(217,164,65,${
+                        0.12 +
+                        pulse * 0.12
+                    })`
+                );
+
+                gradient.addColorStop(
+                    1,
+                    `rgba(255,225,150,${
+                        0.28 +
+                        pulse * 0.20
+                    })`
+                );
+
+                ctx.beginPath();
+
+                ctx.moveTo(
+                    x,
+                    y
+                );
+
+                const midX =
+                    (
+                        x +
+                        coreX
+                    ) / 2;
+
+                const wave =
+                    Math.sin(
+                        this.time * 0.0015 +
+                        node.phase
+                    ) *
+                    12 *
+                    this.scale;
+
+                ctx.quadraticCurveTo(
+                    midX +
+                    wave,
+
+                    (
+                        y +
+                        coreY
+                    ) / 2,
+
+                    coreX,
+                    coreY
+                );
+
+                ctx.strokeStyle =
+                    gradient;
+
+                ctx.lineWidth =
+                    0.8 *
+                    this.scale;
+
+                ctx.shadowBlur =
+                    8;
+
+                ctx.shadowColor =
+                    "rgba(217,164,65,.55)";
+
+                ctx.stroke();
+
+
+                /*
+                 * Node glow
+                 */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    x,
+                    y,
+                    node.radius *
+                    pulse *
+                    this.scale,
+
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.fillStyle =
+                    "rgba(255,225,150,.95)";
+
+                ctx.shadowBlur =
+                    20;
+
+                ctx.shadowColor =
+                    "rgba(217,164,65,1)";
+
+                ctx.fill();
+
+
+                /*
+                 * Small orbital ring
+                 */
+
+                ctx.beginPath();
+
+                ctx.arc(
+                    x,
+                    y,
+                    (
+                        node.radius +
+                        7
+                    ) *
+                    this.scale,
+
+                    0,
+                    Math.PI * 2
+                );
+
+                ctx.strokeStyle =
+                    "rgba(217,164,65,.22)";
+
+                ctx.lineWidth =
+                    0.7 *
+                    this.scale;
+
+                ctx.stroke();
+            }
+        );
+
+        ctx.restore();
+    }
+
+
+    /* =====================================================
+       ENERGY FLOW THROUGH BEING
+       ===================================================== */
+
+    drawEnergyFlow() {
+
+        const ctx =
+            this.ctx;
+
+        const pulse =
+            (
+                Math.sin(
+                    this.time * 0.002
+                ) + 1
+            ) / 2;
+
+        const top =
+            this.centerY -
+            330 *
+            this.scale;
+
+        const bottom =
+            this.centerY +
+            210 *
+            this.scale;
+
+        const x =
+            this.centerX;
+
+        const gradient =
+            ctx.createLinearGradient(
+                x,
+                top,
+                x,
+                bottom
+            );
+
+        gradient.addColorStop(
+            0,
+            "rgba(255,225,150,0)"
+        );
+
+        gradient.addColorStop(
+            0.42,
+            `rgba(217,164,65,${
+                0.06 +
+                pulse * 0.14
+            })`
+        );
+
+        gradient.addColorStop(
+            0.68,
+            `rgba(255,225,150,${
+                0.10 +
+                pulse * 0.18
+            })`
+        );
+
+        gradient.addColorStop(
+            1,
+            "rgba(255,225,150,0)"
+        );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            x,
+            top
+        );
+
+        ctx.lineTo(
+            x,
+            bottom
+        );
+
+        ctx.strokeStyle =
+            gradient;
+
+        ctx.lineWidth =
+            1.6 *
+            this.scale;
+
+        ctx.shadowBlur =
+            18;
+
+        ctx.shadowColor =
+            "rgba(217,164,65,.7)";
+
+        ctx.stroke();
+    }
+
+
+    /* =====================================================
+       AMBIENT ENERGY
+       ===================================================== */
+
+    drawAmbientParticles() {
+
+        const ctx =
+            this.ctx;
+
+        ctx.save();
+
+        for (
+            const particle of
+            this.ambientParticles
+        ) {
+
+            const angle =
+                particle.angle +
+                this.time *
+                particle.speed;
+
+            const x =
+                this.centerX +
+                Math.cos(angle) *
+                particle.radius *
+                this.scale;
+
+            const y =
+                this.centerY +
+                particle.y *
+                this.scale;
+
+            const pulse =
+                0.55 +
+                Math.sin(
+                    this.time * 0.003 +
+                    particle.phase
+                ) *
+                0.45;
+
+            ctx.beginPath();
+
+            ctx.arc(
+                x,
+                y,
+                particle.size,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fillStyle =
+                `rgba(217,164,65,${
+                    particle.alpha *
+                    pulse
+                })`;
+
+            ctx.shadowBlur =
+                8;
+
+            ctx.shadowColor =
+                "rgba(217,164,65,.7)";
+
+            ctx.fill();
+        }
+
+        ctx.restore();
+    }
+
+
+    /* =====================================================
+       HOLOGRAM FIELD
+       ===================================================== */
+
+    drawField() {
+
+        const ctx =
+            this.ctx;
+
+        const pulse =
+            (
+                Math.sin(
+                    this.time * 0.0015
+                ) + 1
+            ) / 2;
+
+        const radius =
+            330 *
+            this.scale;
+
+        const gradient =
+            ctx.createRadialGradient(
+                this.centerX,
+                this.centerY,
+                radius * 0.05,
+
+                this.centerX,
+                this.centerY,
+                radius
+            );
+
+        gradient.addColorStop(
+            0,
+            `rgba(217,164,65,${
+                0.035 +
+                pulse * 0.035
+            })`
+        );
+
+        gradient.addColorStop(
+            0.5,
+            "rgba(217,164,65,.018)"
+        );
+
+        gradient.addColorStop(
+            1,
+            "rgba(217,164,65,0)"
+        );
+
+        ctx.beginPath();
+
+        ctx.arc(
+            this.centerX,
+            this.centerY,
+            radius,
+            0,
+            Math.PI * 2
+        );
+
+        ctx.fillStyle =
+            gradient;
+
+        ctx.fill();
+    }
+
+
+    /* =====================================================
+       SCAN LINE
+       ===================================================== */
+
+    drawScanLine() {
+
+        const ctx =
+            this.ctx;
+
+        const scanY =
+            this.centerY -
+            350 *
+            this.scale +
+            (
+                this.time *
+                0.11
+            ) %
+            (
+                560 *
+                this.scale
+            );
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            this.centerX -
+            260 *
+            this.scale,
+
+            scanY
+        );
+
+        ctx.lineTo(
+            this.centerX +
+            260 *
+            this.scale,
+
+            scanY
+        );
+
+        ctx.strokeStyle =
+            "rgba(255,220,130,.10)";
+
+        ctx.lineWidth =
+            1;
+
+        ctx.shadowBlur =
+            10;
+
+        ctx.shadowColor =
+            "rgba(217,164,65,.5)";
+
+        ctx.stroke();
+    }
+
+
+    /* =====================================================
+       ANIMATION
+       ===================================================== */
+
+    animate(timestamp) {
+
+        this.time =
+            timestamp;
+
+        const ctx =
+            this.ctx;
+
+        ctx.clearRect(
+            0,
+            0,
+            this.width,
+            this.height
+        );
+
+        this.drawField();
+
+        this.drawAmbientParticles();
+
+        this.drawEnergyFlow();
+
+        ctx.shadowBlur = 0;
+
+        for (
+            const particle of
+            this.particles
+        ) {
+
+            this.updateParticle(
+                particle
+            );
+
+            this.drawParticle(
+                particle
+            );
+        }
+
+        this.drawFace();
+
+        this.drawEnergyNodes();
+
+        this.drawCore();
+
+        this.drawScanLine();
+
+        requestAnimationFrame(
+            time =>
+                this.animate(time)
+        );
+    }
+}
+
+
+/* =========================================================
+   INITIALIZATION
+   ========================================================= */
+
+function initVelesDashboard() {
+
+    updateVelesConnections();
+
+    window.addEventListener(
+        "resize",
+        updateVelesConnections
+    );
+
+    setInterval(
+        updateVelesConnections,
+        2000
+    );
+
+    const map =
+        document.querySelector(
+            ".operations-map"
+        );
+
+    if (map) {
+
+        velesHologram =
+            new VelesHologram(
+                map
+            );
+    }
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    initVelesDashboard
+);
