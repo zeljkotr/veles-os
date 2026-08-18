@@ -1,0 +1,90 @@
+# ==================================
+# VELES AI Project
+# ==================================
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+xtts-env/
+tts-venv/
+
+# Secrets / certificates
+.env
+.env.*
+certs/
+*.key
+*.crt
+*.pem
+
+# VELES runtime data
+veles/logs/
+veles/*.log
+veles/memory/*.db
+veles/web/static/audio/
+*.wav
+lightning_logs/
+
+# AI models / weights
+models/
+checkpoints/
+*.onnx
+*.onnx.json
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+
+# Training data
+dataset/
+cv_sr_prepared/
+
+# External engines
+piper1-gpl/
+
+# Cache / temporary
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+
+# Backup files
+*.backup
+*.save
+*.before-clean
+*.before_*
+
+# Build
+build/
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Legacy local distribution data
+veles/database/resources.json
+# ==================================
+# VELES Voice / TTS development
+# ==================================
+
+infer_veles_vits.py
+larynx2/
