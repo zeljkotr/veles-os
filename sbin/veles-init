@@ -1,0 +1,39 @@
+#!/bin/sh
+
+set -eu
+
+echo
+echo "========================================"
+echo "             VELES OS INIT"
+echo "========================================"
+echo
+
+echo "[INIT] Starting VELES OS runtime..."
+
+if [ ! -f /etc/veles/veles.env ]; then
+    echo "[INIT] ERROR: VELES runtime configuration not found."
+    echo
+    echo "[INIT] Expected:"
+    echo "  /etc/veles/veles.env"
+    echo
+    exec /bin/sh
+fi
+
+echo "[INIT] Loading VELES runtime configuration..."
+
+set -a
+. /etc/veles/veles.env
+set +a
+
+if [ -z "${VELES_DATABASE_URL:-}" ]; then
+    echo "[INIT] ERROR: VELES_DATABASE_URL is not configured."
+    echo
+    exec /bin/sh
+fi
+
+echo "[INIT] VELES runtime configuration loaded."
+echo "[INIT] Starting VELES Python runtime..."
+
+cd /opt/veles
+
+exec /usr/bin/python3 /opt/veles/main.py

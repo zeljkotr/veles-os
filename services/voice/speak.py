@@ -7,7 +7,7 @@ Offline Serbian TTS using Piper.
 import subprocess
 import os
 
-from veles.tts.piper_tts import synthesize_to_file
+from services.voice.piper_tts import synthesize_to_file
 
 
 def speak(text: str) -> None:

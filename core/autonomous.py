@@ -17,8 +17,8 @@ import json
 import subprocess
 from pathlib import Path
 
-from ..tools.system import system_info
-from ..logs.logger import log_event
+from .tools.system import system_info
+from .events import log_event
 
 WATCHLIST_FILE = Path(__file__).parent.parent / "config" / "watchlist.json"
 

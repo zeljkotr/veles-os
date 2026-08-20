@@ -2,12 +2,12 @@
 VELES Monitoring Module
 """
 
-from veles.modules.monitoring.service import (
+from services.monitoring.service import (
     monitoring,
     MonitoringService
 )
 
-from veles.modules.monitoring.scheduler import (
+from services.monitoring.scheduler import (
     MonitoringScheduler
 )
 

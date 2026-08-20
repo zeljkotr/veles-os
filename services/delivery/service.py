@@ -5,7 +5,7 @@ Prikuplja trenutno stanje
 delivery sistema Veles.
 """
 
-from veles.modules.infrastructure.resource_registry import ResourceRegistry
+from services.infrastructure.resource_registry import ResourceRegistry
 
 
 class DeliveryService:

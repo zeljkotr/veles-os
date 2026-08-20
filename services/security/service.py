@@ -19,12 +19,12 @@ import getpass
 import platform
 import socket
 
-from veles.modules.security.models import (
+from services.security.models import (
     SecurityCheckResult,
     SecurityReport
 )
 
-from veles.modules.security.checks import (
+from services.security.checks import (
     check_users,
     check_privileged_users,
     check_listening_ports,

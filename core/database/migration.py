@@ -7,8 +7,8 @@ JSON Resource Registry -> PostgreSQL
 import json
 from pathlib import Path
 
-from veles.database.connection import get_session
-from veles.database.models import Resource
+from .connection import get_session
+from .models import Resource
 
 
 

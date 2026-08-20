@@ -13,15 +13,15 @@ so health information survives VELES restarts.
 from datetime import datetime
 from threading import RLock
 
-from veles.database.connection import get_session
-from veles.database.models import MonitoringHistory
+from core.database.connection import get_session
+from core.database.models import MonitoringHistory
 
-from veles.modules.monitoring.models import (
+from services.monitoring.models import (
     HealthCheckResult,
     ResourceHealth
 )
 
-from veles.modules.monitoring.checks import (
+from services.monitoring.checks import (
     run_check
 )
 

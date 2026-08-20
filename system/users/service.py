@@ -39,7 +39,6 @@ class UserService:
             )
 
         users.sort(key=lambda user: user["uid"])
-
         return users
 
     def get_user(
@@ -81,7 +80,6 @@ class UserService:
 
         try:
             primary_group = grp.getgrgid(primary_gid).gr_name
-
             if primary_group not in groups:
                 groups.append(primary_group)
         except KeyError:
@@ -95,5 +93,7 @@ class UserService:
             pass
 
         groups.sort()
-
         return groups
+
+
+users = UserService()

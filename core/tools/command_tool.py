@@ -1,19 +1,17 @@
 """
-veles/tools/command_tool.py
+VELES Core Command Tool.
 
-Executes a shell command that the planner extracted from a natural-
-language request (e.g. "restartuj nginx" -> "systemctl restart nginx").
+Executes shell commands explicitly requested by the user
+and approved by the VELES planner.
 
-Every attempt - whether run or refused - is logged via veles/logs/logger.py.
-Commands matching an obviously destructive pattern are refused rather
-than silently executed. A proper interactive confirmation flow (e.g. via
-the web interface, with a confirm button) can be layered on top of this
-later - for now, refused commands must be run manually if you're sure.
+Obviously destructive commands are refused automatically.
+Every command attempt is recorded through the VELES Core
+Events subsystem.
 """
 
 import subprocess
 
-from ..logs.logger import log_event
+from ..events import log_event
 
 
 DESTRUCTIVE_PATTERNS = [
@@ -32,62 +30,135 @@ DESTRUCTIVE_PATTERNS = [
 
 
 def _looks_destructive(command: str):
+
     lowered = command.lower()
+
     for pattern in DESTRUCTIVE_PATTERNS:
+
         if pattern in lowered:
             return pattern
+
     return None
 
 
 def run_command(context):
+
+    context = context or {}
+
     plan = context.get("plan", {})
     question = context.get("question", "")
-    command = (plan.get("command") or "").strip()
+
+    command = (
+        plan.get("command") or ""
+    ).strip()
 
     if not command:
+
         return {
             "executed": False,
             "command": "",
-            "output": "Nisam uspeo da prepoznam konkretnu komandu iz zahteva.",
+            "output": "No executable command was identified."
         }
 
     risky_pattern = _looks_destructive(command)
 
     if risky_pattern:
-        log_event("command_refused", {
-            "question": question,
-            "command": command,
-            "reason": f"matched destructive pattern: {risky_pattern}",
-        })
+
+        log_event(
+            "command_refused",
+            {
+                "question": question,
+                "command": command,
+                "reason": (
+                    "matched destructive pattern: "
+                    f"{risky_pattern}"
+                )
+            }
+        )
+
         return {
             "executed": False,
             "command": command,
-            "output": f"Ova komanda deluje rizično (sadrži '{risky_pattern}') - "
-                      f"nisam je izvršio. Pokreni je ručno u terminalu ako si siguran.",
+            "output": (
+                "This command appears risky "
+                f"(contains '{risky_pattern}'). "
+                "It was not executed."
+            )
         }
 
-    log_event("command_started", {"question": question, "command": command})
+    log_event(
+        "command_started",
+        {
+            "question": question,
+            "command": command
+        }
+    )
 
     try:
+
         result = subprocess.run(
-            command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            text=True, timeout=30
+            command,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            timeout=30
         )
-        output = result.stdout.strip() or result.stderr.strip() or "(bez izlaza)"
+
+        output = (
+            result.stdout.strip()
+            or result.stderr.strip()
+            or "(no output)"
+        )
+
         success = result.returncode == 0
 
-        log_event("command_finished", {
-            "question": question,
-            "command": command,
-            "returncode": result.returncode,
-            "success": success,
-        })
+        log_event(
+            "command_finished",
+            {
+                "question": question,
+                "command": command,
+                "returncode": result.returncode,
+                "success": success
+            }
+        )
 
-        return {"executed": True, "command": command, "output": output, "success": success}
+        return {
+            "executed": True,
+            "command": command,
+            "output": output,
+            "success": success
+        }
 
     except subprocess.TimeoutExpired:
-        log_event("command_timeout", {"question": question, "command": command})
-        return {"executed": False, "command": command, "output": "Komanda je istekla (timeout 30s)."}
-    except Exception as e:
-        log_event("command_error", {"question": question, "command": command, "error": str(e)})
-        return {"executed": False, "command": command, "output": f"Greška: {e}"}
+
+        log_event(
+            "command_timeout",
+            {
+                "question": question,
+                "command": command
+            }
+        )
+
+        return {
+            "executed": False,
+            "command": command,
+            "output": "Command timed out after 30 seconds."
+        }
+
+    except Exception as exc:
+
+        log_event(
+            "command_error",
+            {
+                "question": question,
+                "command": command,
+                "error": str(exc)
+            }
+        )
+
+        return {
+            "executed": False,
+            "command": command,
+            "output": f"Command execution error: {exc}"
+        }

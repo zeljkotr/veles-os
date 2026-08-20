@@ -1,0 +1,3 @@
+"""
+VELES OS Window Manager
+"""

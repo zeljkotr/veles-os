@@ -18,14 +18,14 @@ import threading
 from pathlib import Path
 
 
-from veles.modules.monitoring import (
+from services.monitoring import (
     monitoring,
     MonitoringScheduler
 )
 
-from veles.modules.network.service import network
-from veles.modules.delivery.service import delivery
-from veles.modules.security.service import security
+from services.network.service import network
+from services.delivery.service import delivery
+from services.security.service import security
 
 
 BASE_DIR = os.path.abspath(
@@ -57,35 +57,35 @@ from flask import (
 from markdown_it import MarkdownIt
 
 
-from veles.core.brain import ask_veles
+from core.brain import ask_veles
 
 
-from veles.memory.memory import (
+from core.memory.memory import (
     remember,
     recall_with_ids,
     delete_memory
 )
 
 
-from veles.tts.piper_tts import synthesize_to_file
+from services.voice.piper_tts import synthesize_to_file
 
 
-from veles.logs.logger import LOG_FILE
+from core.logs.logger import LOG_FILE
 
 
-from veles.system.system_info import get_system_info
+from system.system_info import get_system_info
 
 
-from veles.system.services import list_common_services
+from system.services import list_common_services
 
 
-from veles.modules.registry import get_modules
+from services.registry import get_modules
 
 
-from veles.modules.infrastructure.service import infrastructure
+from services.infrastructure.service import infrastructure
 
 
-from veles.modules.infrastructure.discovery import (
+from services.infrastructure.discovery import (
     discover_network_targets
 )
 
@@ -532,7 +532,7 @@ def discovery_page():
 )
 def discovery_scan():
 
-    from veles.modules.infrastructure.discovery import (
+    from services.infrastructure.discovery import (
         discover_network_hosts
     )
 
@@ -1990,7 +1990,7 @@ def discovery_resource_deep_scan():
 
         try:
 
-            from veles.modules.infrastructure.discovery import (
+            from services.infrastructure.discovery import (
                 nmap_scan
             )
 

@@ -19,7 +19,7 @@
 
 <title>
 {% block title %}
-Veles Operating System
+VELES Operating System
 {% endblock %}
 </title>
 
@@ -49,7 +49,7 @@ Veles Operating System
 
 
 <!-- =====================================================
-     GLOBAL CSS
+     GLOBAL VELES CSS
      ===================================================== -->
 
 <link
@@ -57,16 +57,35 @@ Veles Operating System
     href="{{ url_for(
         'static',
         filename='css/veles.css',
-        v='4'
+        v='5'
     ) }}"
 >
+
+
+<!-- =====================================================
+     VELES DESKTOP SHELL CSS
+     ===================================================== -->
+
+<link
+    rel="stylesheet"
+    href="{{ url_for(
+        'static',
+        filename='css/desktop-shell.css',
+        v='1'
+    ) }}"
+>
+
+
+<!-- =====================================================
+     MODULE CSS
+     ===================================================== -->
 
 <link
     rel="stylesheet"
     href="{{ url_for(
         'static',
         filename='css/dashboard.css',
-        v='2'
+        v='3'
     ) }}"
 >
 
@@ -75,7 +94,7 @@ Veles Operating System
     href="{{ url_for(
         'static',
         filename='css/logs.css',
-        v='2'
+        v='3'
     ) }}"
 >
 
@@ -84,7 +103,7 @@ Veles Operating System
     href="{{ url_for(
         'static',
         filename='css/system.css',
-        v='2'
+        v='3'
     ) }}"
 >
 
@@ -96,406 +115,576 @@ Veles Operating System
 
 <body>
 
+
+<!-- =====================================================
+     VELES DESKTOP
+     ===================================================== -->
+
 <div class="app-layout">
 
 
-<!-- =====================================================
-     VELES OS SIDEBAR
-     ===================================================== -->
+    <!-- =================================================
+         DESKTOP SIDEBAR
+         ================================================= -->
 
-<aside class="sidebar">
-
-
-    <!-- OS BRAND -->
-
-    <div class="sidebar-brand">
-
-        <div class="sidebar-brand-mark">
-            V
-        </div>
-
-        <div class="sidebar-brand-name">
-            VELES
-        </div>
-
-        <div
-            class="sidebar-brand-os"
-            data-i18n="brand.os"
-        >
-            OPERATING SYSTEM
-        </div>
-
-    </div>
+    <aside class="sidebar">
 
 
-    <!-- NAVIGATION -->
+        <!-- =============================================
+             VELES BRAND
+             ============================================= -->
 
-    <nav class="main-menu">
+        <div class="sidebar-brand">
 
+            <div class="sidebar-brand-mark">
+                V
+            </div>
 
-        <!-- WORKSPACE -->
-
-        <div class="main-menu-section">
+            <div class="sidebar-brand-name">
+                VELES
+            </div>
 
             <div
-                class="main-menu-section-title"
-                data-i18n="nav.workspace"
+                class="sidebar-brand-os"
+                data-i18n="brand.os"
             >
-                WORKSPACE
+                OPERATING SYSTEM
+            </div>
+
+        </div>
+
+
+        <!-- =============================================
+             DESKTOP NAVIGATION
+             ============================================= -->
+
+        <nav
+            class="main-menu"
+            aria-label="VELES Desktop Navigation"
+        >
+
+
+            <!-- =========================================
+                 WORKSPACE
+                 ========================================= -->
+
+            <div class="main-menu-section">
+
+                <div
+                    class="main-menu-section-title"
+                    data-i18n="nav.workspace"
+                >
+                    WORKSPACE
+                </div>
+
+
+                <a
+                    href="{{ url_for('dashboard_view') }}"
+                    class="{% if request.endpoint == 'dashboard_view' %}active{% endif %}"
+                >
+
+                    <span class="main-menu-icon">
+                        ◉
+                    </span>
+
+                    <span
+                        class="main-menu-label"
+                        data-i18n="nav.overview"
+                    >
+                        Dashboard
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#"
+                    class="desktop-navigation-item"
+                    data-desktop-view="operations"
+                >
+
+                    <span class="main-menu-icon">
+                        ◈
+                    </span>
+
+                    <span class="main-menu-label">
+                        Operations Center
+                    </span>
+
+                </a>
+
             </div>
 
 
-            <a
-                href="{{ url_for('dashboard_view') }}"
-                class="{% if request.endpoint == 'dashboard_view' %}active{% endif %}"
-            >
+            <!-- =========================================
+                 INFRASTRUCTURE
+                 ========================================= -->
 
-                <span class="main-menu-icon">
-                    ◉
-                </span>
+            <div class="main-menu-section">
 
-                <span
-                    class="main-menu-label"
-                    data-i18n="nav.overview"
+                <div class="main-menu-section-title">
+                    INFRASTRUCTURE
+                </div>
+
+
+                <a
+                    href="{{ url_for('discovery_page') }}"
+                    class="{% if request.endpoint == 'discovery_page' %}active{% endif %}"
                 >
-                    Overview
-                </span>
 
-            </a>
+                    <span class="main-menu-icon">
+                        ◇
+                    </span>
 
-        </div>
+                    <span class="main-menu-label">
+                        Discovery
+                    </span>
+
+                </a>
 
 
-        <!-- OPERATIONS -->
+                <a
+                    href="{{ url_for('infrastructure_page') }}"
+                    class="{% if request.endpoint == 'infrastructure_page' %}active{% endif %}"
+                >
 
-        <div class="main-menu-section">
+                    <span class="main-menu-icon">
+                        ▦
+                    </span>
 
-            <div
-                class="main-menu-section-title"
-                data-i18n="nav.operations"
-            >
-                OPERATIONS
+                    <span class="main-menu-label">
+                        Infrastructure
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('system_view') }}"
+                    class="{% if request.endpoint == 'system_view' %}active{% endif %}"
+                >
+
+                    <span class="main-menu-icon">
+                        ▣
+                    </span>
+
+                    <span class="main-menu-label">
+                        System
+                    </span>
+
+                </a>
+
             </div>
 
 
-            <a
-                href="{{ url_for('discovery_page') }}"
-                class="{% if request.endpoint == 'discovery_page' %}active{% endif %}"
-            >
+            <!-- =========================================
+                 OPERATIONS
+                 ========================================= -->
 
-                <span class="main-menu-icon">
-                    ◈
-                </span>
+            <div class="main-menu-section">
 
-                <span
-                    class="main-menu-label"
-                    data-i18n="nav.discovery"
+                <div class="main-menu-section-title">
+                    OPERATIONS
+                </div>
+
+
+                <a
+                    href="{{ url_for('monitoring_view') }}"
+                    class="{% if request.endpoint == 'monitoring_view' %}active{% endif %}"
                 >
-                    Discovery
-                </span>
 
-            </a>
+                    <span class="main-menu-icon">
+                        ◉
+                    </span>
+
+                    <span class="main-menu-label">
+                        Monitoring
+                    </span>
+
+                </a>
 
 
-            <a
-                href="{{ url_for('system_view') }}"
-                class="{% if request.endpoint == 'system_view' %}active{% endif %}"
-            >
-
-                <span class="main-menu-icon">
-                    ▣
-                </span>
-
-                <span
-                    class="main-menu-label"
-                    data-i18n="nav.system"
+                <a
+                    href="{{ url_for('network_view') }}"
+                    class="{% if request.endpoint == 'network_view' %}active{% endif %}"
                 >
-                    System
-                </span>
 
-            </a>
+                    <span class="main-menu-icon">
+                        ⌁
+                    </span>
+
+                    <span class="main-menu-label">
+                        Network
+                    </span>
+
+                </a>
 
 
-            <a
-                href="{{ url_for('logs_view') }}"
-                class="{% if request.endpoint == 'logs_view' %}active{% endif %}"
-            >
-
-                <span class="main-menu-icon">
-                    ◇
-                </span>
-
-                <span
-                    class="main-menu-label"
-                    data-i18n="nav.events"
+                <a
+                    href="{{ url_for('security_view') }}"
+                    class="{% if request.endpoint == 'security_view' %}active{% endif %}"
                 >
-                    Events
-                </span>
 
-            </a>
+                    <span class="main-menu-icon">
+                        ◇
+                    </span>
 
-        </div>
+                    <span class="main-menu-label">
+                        Security
+                    </span>
+
+                </a>
 
 
-        <!-- INTELLIGENCE -->
+                <a
+                    href="{{ url_for('delivery_view') }}"
+                    class="{% if request.endpoint == 'delivery_view' %}active{% endif %}"
+                >
 
-        <div class="main-menu-section">
+                    <span class="main-menu-icon">
+                        ▷
+                    </span>
 
-            <div
-                class="main-menu-section-title"
-                data-i18n="nav.intelligence"
-            >
-                INTELLIGENCE
+                    <span class="main-menu-label">
+                        Delivery
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('logs_view') }}"
+                    class="{% if request.endpoint == 'logs_view' %}active{% endif %}"
+                >
+
+                    <span class="main-menu-icon">
+                        ≡
+                    </span>
+
+                    <span class="main-menu-label">
+                        Events
+                    </span>
+
+                </a>
+
             </div>
 
 
-            <a
-                href="{{ url_for('chat') }}"
-                class="{% if request.endpoint == 'chat' %}active{% endif %}"
-            >
+            <!-- =========================================
+                 INTELLIGENCE
+                 ========================================= -->
 
-                <span class="main-menu-icon">
-                    ✦
-                </span>
+            <div class="main-menu-section">
 
-                <span
-                    class="main-menu-label"
-                    data-i18n="nav.ai"
+                <div
+                    class="main-menu-section-title"
+                    data-i18n="nav.intelligence"
                 >
-                    AI
-                </span>
-
-            </a>
+                    INTELLIGENCE
+                </div>
 
 
-            <a
-                href="{{ url_for('memory_view') }}"
-                class="{% if request.endpoint == 'memory_view' %}active{% endif %}"
-            >
-
-                <span class="main-menu-icon">
-                    ◎
-                </span>
-
-                <span
-                    class="main-menu-label"
-                    data-i18n="nav.memory"
+                <a
+                    href="{{ url_for('chat') }}"
+                    class="{% if request.endpoint == 'chat' %}active{% endif %}"
                 >
-                    Memory
-                </span>
 
-            </a>
+                    <span class="main-menu-icon">
+                        ✦
+                    </span>
+
+                    <span
+                        class="main-menu-label"
+                        data-i18n="nav.ai"
+                    >
+                        Intelligence
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('memory_view') }}"
+                    class="{% if request.endpoint == 'memory_view' %}active{% endif %}"
+                >
+
+                    <span class="main-menu-icon">
+                        ◎
+                    </span>
+
+                    <span
+                        class="main-menu-label"
+                        data-i18n="nav.memory"
+                    >
+                        Memory
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="#"
+                    class="desktop-navigation-item"
+                    data-desktop-view="terminal"
+                >
+
+                    <span class="main-menu-icon">
+                        >
+                    </span>
+
+                    <span class="main-menu-label">
+                        Terminal
+                    </span>
+
+                </a>
+
+            </div>
+
+
+            <!-- =========================================
+                 PLATFORM
+                 ========================================= -->
+
+            <div class="main-menu-section">
+
+                <div class="main-menu-section-title">
+                    PLATFORM
+                </div>
+
+
+                <a
+                    href="{{ url_for('services_view') }}"
+                    class="{% if request.endpoint == 'services_view' %}active{% endif %}"
+                >
+
+                    <span class="main-menu-icon">
+                        ⬡
+                    </span>
+
+                    <span class="main-menu-label">
+                        Services
+                    </span>
+
+                </a>
+
+
+                <a
+                    href="{{ url_for('system_view') }}"
+                    class="{% if request.endpoint == 'system_view' %}active{% endif %}"
+                >
+
+                    <span class="main-menu-icon">
+                        ⚙
+                    </span>
+
+                    <span class="main-menu-label">
+                        System
+                    </span>
+
+                </a>
+
+            </div>
+
+
+        </nav>
+
+
+        <!-- =============================================
+             SIDEBAR FOOTER
+             ============================================= -->
+
+        <div class="sidebar-footer">
+
+            <div class="sidebar-footer-line"></div>
+
+            <div
+                class="sidebar-footer-label"
+                data-i18n="system.veles_os"
+            >
+                VELES OS
+            </div>
+
+            <div class="sidebar-footer-status">
+                DESKTOP RUNTIME
+            </div>
+
+            <div class="sidebar-footer-status">
+                ONLINE
+            </div>
 
         </div>
 
 
-    </nav>
-
-
-    <!-- SIDEBAR FOOTER -->
-
-    <div class="sidebar-footer">
-
-        <div class="sidebar-footer-line"></div>
-
-        <div
-            class="sidebar-footer-label"
-            data-i18n="system.veles_os"
-        >
-            VELES OS
-        </div>
-
-        <div
-            class="sidebar-footer-status"
-            data-i18n="system.local_system"
-        >
-            LOCAL SYSTEM
-        </div>
-
-    </div>
-
-
-</aside>
-
-
-<!-- =====================================================
-     MAIN OS AREA
-     ===================================================== -->
-
-<section class="main-area">
+    </aside>
 
 
     <!-- =================================================
-         SYSTEM BAR
+         MAIN DESKTOP AREA
          ================================================= -->
 
-    <header class="top-header">
-
-
-        <div class="top-header-left">
-
-            <div
-                class="top-header-title"
-                data-i18n="brand.name"
-            >
-                VELES OPERATING SYSTEM
-            </div>
-
-            <div class="top-header-divider"></div>
-
-            <div class="top-header-application">
-
-                {% block application %}
-                APPLICATION
-                {% endblock %}
-
-            </div>
-
-        </div>
+    <section class="main-area">
 
 
         <!-- =================================================
-             GLOBAL OS CONTROLS
+             DESKTOP SYSTEM BAR
              ================================================= -->
 
-        <div class="top-header-right">
+        <header class="top-header">
 
 
-            <!-- LANGUAGE -->
+            <div class="top-header-left">
 
-            <div class="os-control-group">
-
-                <label
-                    class="os-control-label"
-                    for="veles-language-select"
-                    data-i18n="settings.language"
+                <div
+                    class="top-header-title"
+                    data-i18n="brand.name"
                 >
-                    LANGUAGE
-                </label>
+                    VELES OPERATING SYSTEM
+                </div>
 
+                <div class="top-header-divider"></div>
 
-                <select
-                    id="veles-language-select"
-                    class="os-control-select"
-                    aria-label="Language"
-                >
+                <div class="top-header-application">
 
-                    <option
-                        value="en"
-                        data-i18n="language.english"
-                    >
-                        English
-                    </option>
+                    {% block application %}
+                    DESKTOP
+                    {% endblock %}
 
-                    <option
-                        value="sr"
-                        data-i18n="language.serbian"
-                    >
-                        Serbian
-                    </option>
-
-                </select>
+                </div>
 
             </div>
 
 
-            <div class="os-header-separator"></div>
+            <!-- =============================================
+                 DESKTOP CONTROLS
+                 ============================================= -->
+
+            <div class="top-header-right">
 
 
-            <!-- THEME -->
+                <!-- LANGUAGE -->
 
-            <div class="os-control-group">
+                <div class="os-control-group">
 
-                <label
-                    class="os-control-label"
-                    for="veles-theme-select"
-                    data-i18n="settings.theme"
-                >
-                    THEME
-                </label>
-
-
-                <select
-                    id="veles-theme-select"
-                    class="os-control-select"
-                    aria-label="Theme"
-                >
-
-                    <option
-                        value="dark"
-                        data-i18n="theme.dark"
+                    <label
+                        class="os-control-label"
+                        for="veles-language-select"
+                        data-i18n="settings.language"
                     >
-                        Dark
-                    </option>
+                        LANGUAGE
+                    </label>
 
-                    <option
-                        value="light"
-                        data-i18n="theme.light"
+                    <select
+                        id="veles-language-select"
+                        class="os-control-select"
+                        aria-label="Language"
                     >
-                        Light
-                    </option>
 
-                </select>
+                        <option
+                            value="en"
+                            selected
+                            data-i18n="language.english"
+                        >
+                            English
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="os-header-separator"></div>
+
+
+                <!-- THEME -->
+
+                <div class="os-control-group">
+
+                    <label
+                        class="os-control-label"
+                        for="veles-theme-select"
+                        data-i18n="settings.theme"
+                    >
+                        THEME
+                    </label>
+
+                    <select
+                        id="veles-theme-select"
+                        class="os-control-select"
+                        aria-label="Theme"
+                    >
+
+                        <option
+                            value="dark"
+                            selected
+                            data-i18n="theme.dark"
+                        >
+                            Dark
+                        </option>
+
+                        <option
+                            value="light"
+                            data-i18n="theme.light"
+                        >
+                            Light
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="os-header-separator"></div>
+
+
+                <!-- DESKTOP STATUS -->
+
+                <div class="system-status">
+
+                    <span class="system-status-dot"></span>
+
+                    <span
+                        class="system-status-text"
+                        data-i18n="system.online"
+                    >
+                        ONLINE
+                    </span>
+
+                </div>
+
+
+                <div class="system-status-separator"></div>
+
+
+                <div class="system-status-secondary">
+                    DESKTOP
+                </div>
+
 
             </div>
 
-
-            <div class="os-header-separator"></div>
-
-
-            <!-- SYSTEM STATUS -->
-
-            <div class="system-status">
-
-                <span class="system-status-dot"></span>
-
-                <span
-                    class="system-status-text"
-                    data-i18n="system.online"
-                >
-                    ONLINE
-                </span>
-
-            </div>
+        </header>
 
 
-            <div class="system-status-separator"></div>
+        <!-- =================================================
+             APPLICATION CONTENT
+             ================================================= -->
+
+        <main class="page-container">
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
 
 
-            <div
-                class="system-status-secondary"
-                data-i18n="system.local"
-            >
-                LOCAL
-            </div>
-
-
-        </div>
-
-
-    </header>
-
-
-    <!-- =================================================
-         APPLICATION CONTENT
-         ================================================= -->
-
-    <main class="page-container">
-
-        {% block content %}
-        {% endblock %}
-
-    </main>
-
-
-</section>
+    </section>
 
 
 </div>
 
 
 <!-- =====================================================
-     GLOBAL JAVASCRIPT
+     GLOBAL VELES JAVASCRIPT
      ===================================================== -->
 
 <script
@@ -520,7 +709,7 @@ Veles Operating System
     src="{{ url_for(
         'static',
         filename='js/veles.js',
-        v='2'
+        v='3'
     ) }}"
 ></script>
 
@@ -529,7 +718,7 @@ Veles Operating System
     src="{{ url_for(
         'static',
         filename='js/dashboard.js',
-        v='2'
+        v='3'
     ) }}"
 ></script>
 

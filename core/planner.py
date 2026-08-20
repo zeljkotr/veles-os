@@ -8,7 +8,10 @@ Decision order:
 
 import re
 
-from ..llm.ollama_client import call_ollama, extract_json
+from services.intelligence.ollama_client import (
+    call_ollama,
+    extract_json
+)
 
 
 PLANNER_PROMPT_TEMPLATE = """
@@ -134,7 +137,10 @@ def local_intent_check(question):
 
         if q.startswith(cmd):
 
-            service = q.split(cmd, 1)[1].strip()
+            service = q.split(
+                cmd,
+                1
+            )[1].strip()
 
             if service:
 
@@ -148,7 +154,9 @@ def local_intent_check(question):
 
 def create_plan(question):
 
-    local_plan = local_intent_check(question)
+    local_plan = local_intent_check(
+        question
+    )
 
     if local_plan:
 
@@ -164,7 +172,9 @@ def create_plan(question):
         num_predict=120
     )
 
-    parsed = extract_json(raw)
+    parsed = extract_json(
+        raw
+    )
 
     if not parsed or "action" not in parsed:
 

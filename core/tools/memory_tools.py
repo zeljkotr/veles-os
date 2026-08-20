@@ -1,42 +1,77 @@
 """
-veles/tools/memory_tools.py
+VELES Core Memory Tools.
 
-Explicit-memory tool. Triggered when the user directly asks Veles to
-remember something (e.g. "Veles, zapamti da server X koristi port 8080").
-Uses the local model to pull a clean key/value pair out of the sentence,
-then stores it via memory.remember().
+Explicit-memory tool triggered when the user directly asks VELES
+to remember something.
+
+The local intelligence service extracts a clean key/value pair,
+which is then persisted through the VELES memory subsystem.
 """
 
 from ..memory.memory import remember
-from ..llm.ollama_client import call_ollama, extract_json
+
+from services.intelligence.ollama_client import (
+    call_ollama,
+    extract_json
+)
 
 
 def remember_fact(context):
-    question = context["question"]
+
+    question = context.get("question", "").strip()
+
+    if not question:
+
+        return {
+            "success": False,
+            "error": "No question provided."
+        }
 
     prompt = f"""
+Extract the key persistent fact from the following user request.
 
-Izdvoji ključnu činjenicu iz sledeće rečenice i vrati je STROGO u JSON formatu,
-bez ikakvog dodatnog teksta, komentara ili objašnjenja - samo JSON.
+Return STRICTLY valid JSON.
+Do not include explanations, comments, markdown, or any additional text.
 
-Format: {{"key": "kratak naziv činjenice", "value": "sama vrednost/činjenica"}}
+Required format:
 
-Rečenica: "{question}"
+{{
+    "key": "short fact name",
+    "value": "the actual fact"
+}}
 
+User request:
+
+"{question}"
 """
 
-    raw = call_ollama(prompt, temperature=0.0, num_predict=100)
+    raw = call_ollama(
+        prompt,
+        temperature=0.0,
+        num_predict=100
+    )
+
     parsed = extract_json(raw)
 
     if parsed and parsed.get("key") and parsed.get("value"):
-        key = parsed["key"]
-        value = parsed["value"]
+
+        key = str(parsed["key"]).strip()
+        value = str(parsed["value"]).strip()
+
     else:
-        # Fallback: store the whole sentence rather than silently losing it
-        # if the model's JSON extraction didn't work out.
+
+        # Fallback: preserve the complete user request
+        # instead of silently losing the information.
+
         key = "fact"
         value = question
 
-    remember(key, value)
+    remember(
+        key,
+        value
+    )
 
-    return {"key": key, "value": value}
+    return {
+        "key": key,
+        "value": value
+    }

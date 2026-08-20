@@ -20,9 +20,9 @@ Manually created resources keep the existing
 type + name + host duplicate protection.
 """
 
-from veles.database.connection import get_session
-from veles.database.models import Resource
-from veles.core.identity import IdentityService
+from core.database.connection import get_session
+from core.database.models import Resource
+from core.identity import IdentityService
 
 
 class ResourceRegistry:

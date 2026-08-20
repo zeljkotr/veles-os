@@ -2,7 +2,7 @@
 
 
 {% block title %}
-Veles Operations Center
+VELES Desktop
 {% endblock %}
 
 
@@ -13,11 +13,13 @@ Veles Operations Center
 
 {% block content %}
 
+<div class="desktop-view">
 
-<div class="veles-dashboard">
+    <!-- =================================================
+         DESKTOP VIEW HEADER
+         ================================================= -->
 
-
-    <div class="dashboard-header">
+    <div class="desktop-view-header">
 
         <div class="dashboard-header-main">
 
@@ -40,9 +42,9 @@ Veles Operations Center
         </div>
 
 
-        <div class="dashboard-header-status">
+        <div class="desktop-view-status">
 
-            <span class="dashboard-status-dot"></span>
+            <span class="desktop-view-status-dot"></span>
 
             <span data-i18n="dashboard.system_operational">
                 SYSTEM OPERATIONAL
@@ -53,8 +55,11 @@ Veles Operations Center
     </div>
 
 
-    <div class="operations-map">
+    <!-- =================================================
+         OPERATIONS MAP
+         ================================================= -->
 
+    <div class="operations-map">
 
         <div
             class="operations-map-label"
@@ -81,25 +86,83 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             CONNECTION LAYER
+             ================================================= -->
+
         <svg class="connection-lines">
 
-            <line class="data-line" data-target="intelligence"></line>
-            <line class="data-line" data-target="infrastructure"></line>
-            <line class="data-line" data-target="delivery"></line>
-            <line class="data-line" data-target="cloud"></line>
-            <line class="data-line" data-target="security"></line>
-            <line class="data-line" data-target="automation"></line>
-            <line class="data-line" data-target="observability"></line>
-            <line class="data-line" data-target="network"></line>
-            <line class="data-line" data-target="platform"></line>
-            <line class="data-line" data-target="data"></line>
-            <line class="data-line" data-target="testing"></line>
-            <line class="data-line" data-target="access"></line>
+            <line
+                class="data-line"
+                data-target="intelligence"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="infrastructure"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="delivery"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="cloud"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="security"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="automation"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="observability"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="network"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="platform"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="data"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="testing"
+            ></line>
+
+            <line
+                class="data-line"
+                data-target="access"
+            ></line>
 
         </svg>
 
 
-        <a href="/chat" class="node intelligence">
+        <!-- =================================================
+             INTELLIGENCE
+             ================================================= -->
+
+        <a
+            href="{{ url_for('chat') }}"
+            class="node intelligence"
+        >
 
             <span class="node-icon">
                 🧠
@@ -122,7 +185,14 @@ Veles Operations Center
         </a>
 
 
-        <a href="/infrastructure" class="node infrastructure">
+        <!-- =================================================
+             INFRASTRUCTURE
+             ================================================= -->
+
+        <a
+            href="{{ url_for('infrastructure_page') }}"
+            class="node infrastructure"
+        >
 
             <span class="node-icon">
                 🖥
@@ -145,9 +215,13 @@ Veles Operations Center
         </a>
 
 
+        <!-- =================================================
+             DELIVERY
+             ================================================= -->
+
         <div
             class="node delivery"
-            onclick="window.location.href='/delivery'"
+            onclick="window.location.href='{{ url_for('delivery_view') }}'"
         >
 
             <span class="node-icon">
@@ -170,6 +244,10 @@ Veles Operations Center
 
         </div>
 
+
+        <!-- =================================================
+             VELES CORE
+             ================================================= -->
 
         <div class="node core">
 
@@ -194,6 +272,10 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             CLOUD
+             ================================================= -->
+
         <div class="node cloud">
 
             <span class="node-icon">
@@ -217,9 +299,13 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             SECURITY
+             ================================================= -->
+
         <div
             class="node security"
-            onclick="window.location.href='{{ url_for("security_view") }}'"
+            onclick="window.location.href='{{ url_for('security_view') }}'"
         >
 
             <span class="node-icon">
@@ -242,6 +328,10 @@ Veles Operations Center
 
         </div>
 
+
+        <!-- =================================================
+             AUTOMATION
+             ================================================= -->
 
         <div class="node automation">
 
@@ -266,9 +356,13 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             MONITORING
+             ================================================= -->
+
         <div
             class="node observability"
-            onclick="window.location.href='{{ url_for("monitoring_view") }}'"
+            onclick="window.location.href='{{ url_for('monitoring_view') }}'"
         >
 
             <span class="node-icon">
@@ -292,9 +386,13 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             NETWORK
+             ================================================= -->
+
         <div
             class="node network"
-            onclick="window.location.href='{{ url_for("network_view") }}'"
+            onclick="window.location.href='{{ url_for('network_view') }}'"
         >
 
             <span class="node-icon">
@@ -317,6 +415,10 @@ Veles Operations Center
 
         </div>
 
+
+        <!-- =================================================
+             PLATFORM
+             ================================================= -->
 
         <div class="node platform">
 
@@ -341,6 +443,10 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             DATA
+             ================================================= -->
+
         <div class="node data">
 
             <span class="node-icon">
@@ -363,6 +469,10 @@ Veles Operations Center
 
         </div>
 
+
+        <!-- =================================================
+             TESTING
+             ================================================= -->
 
         <div class="node testing">
 
@@ -387,6 +497,10 @@ Veles Operations Center
         </div>
 
 
+        <!-- =================================================
+             ACCESS
+             ================================================= -->
+
         <div class="node access">
 
             <span class="node-icon">
@@ -409,11 +523,8 @@ Veles Operations Center
 
         </div>
 
-
     </div>
 
-
 </div>
-
 
 {% endblock %}

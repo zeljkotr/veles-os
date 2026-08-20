@@ -2,10 +2,14 @@ from .planner import create_plan
 from .executor import Executor
 from .reporter import create_report
 
-from ..personality.personality import load_personality
-from ..memory.memory import get_memory_text
-from ..knowledge.search import get_knowledge_context
-from ..llm.ollama_client import call_ollama, extract_json
+from .personality.personality import load_personality
+from .memory.memory import get_memory_text
+from .knowledge.search import get_knowledge_context
+
+from services.intelligence.ollama_client import (
+    call_ollama,
+    extract_json
+)
 
 
 executor = Executor()
@@ -43,7 +47,10 @@ TECHNICAL RESPONSES:
 """
 
 
-def _detect_memorable_fact(question, answer):
+def _detect_memorable_fact(
+    question,
+    answer
+):
 
     prompt = f"""
 Analyze the following conversation.
@@ -75,19 +82,33 @@ VELES:
         num_predict=80
     )
 
-    parsed = extract_json(raw)
+    parsed = extract_json(
+        raw
+    )
 
-    if parsed and parsed.get("key") and parsed.get("value"):
+    if (
+        parsed
+        and parsed.get("key")
+        and parsed.get("value")
+    ):
+
         return parsed
 
     return None
 
 
-def ask_veles(question):
+def ask_veles(
+    question
+):
 
-    plan = create_plan(question)
+    plan = create_plan(
+        question
+    )
 
-    print("PLAN:", plan)
+    print(
+        "PLAN:",
+        plan
+    )
 
     if plan["action"] != "chat":
 
@@ -100,7 +121,9 @@ def ask_veles(question):
         )
 
         return {
-            "answer": create_report(tool_result),
+            "answer": create_report(
+                tool_result
+            ),
             "suggested_memory": None
         }
 
@@ -108,11 +131,21 @@ def ask_veles(question):
 
     memory = get_memory_text()
 
-    knowledge = get_knowledge_context(question)
+    knowledge = get_knowledge_context(
+        question
+    )
 
-    print("\n========== LOCAL KNOWLEDGE ==========")
-    print(knowledge)
-    print("=====================================\n")
+    print(
+        "\n========== LOCAL KNOWLEDGE =========="
+    )
+
+    print(
+        knowledge
+    )
+
+    print(
+        "=====================================\n"
+    )
 
     prompt = f"""
 {personality}
@@ -134,7 +167,9 @@ User:
 VELES:
 """
 
-    print("VELES is thinking...")
+    print(
+        "VELES is thinking..."
+    )
 
     raw_answer = call_ollama(
         prompt,

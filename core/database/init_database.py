@@ -1,12 +1,11 @@
 """
-VELES DATABASE INITIALIZATION
-Creates PostgreSQL tables
+VELES Database Initialization.
+
+Creates PostgreSQL tables.
 """
 
-
-from veles.database.connection import engine
-from veles.database.models import Base
-
+from .connection import engine
+from .models import Base
 
 
 def init_database():
@@ -18,7 +17,6 @@ def init_database():
     )
 
     print("Database ready.")
-
 
 
 if __name__ == "__main__":

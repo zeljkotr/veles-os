@@ -1,5 +1,5 @@
 """
-VELES OS Core
+VELES OS Core.
 
-The central runtime foundation of VELES OS.
+Core package containing the VELES Core subsystems.
 """
