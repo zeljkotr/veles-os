@@ -8,6 +8,7 @@ The resulting filesystem contains:
 - Python runtime
 - VELES OS source/runtime tree
 - VELES Python dependencies
+- Ollama AI runtime
 - a standalone VELES runtime entrypoint
 - VELES runtime configuration
 
@@ -61,6 +62,10 @@ class RootFSBuilder:
 
     HOST_RUNTIME_CONFIGURATION = Path(
         "/etc/veles/veles.env"
+    )
+
+    HOST_OLLAMA_BINARY = Path(
+        "/usr/local/bin/ollama"
     )
 
     def __init__(
@@ -159,6 +164,12 @@ class RootFSBuilder:
                 "debootstrap was not found."
             )
 
+        if not self.HOST_OLLAMA_BINARY.is_file():
+            raise FileNotFoundError(
+                "Ollama binary was not found at: "
+                f"{self.HOST_OLLAMA_BINARY}"
+            )
+
         return True
 
     # --------------------------------------------------
@@ -222,9 +233,12 @@ class RootFSBuilder:
             "var",
             "var/log",
             "var/tmp",
+            "var/lib",
+            "var/lib/ollama",
             "opt",
             "opt/veles",
             "etc/veles",
+            "usr/local/bin",
         )
 
         for relative in directories:
@@ -295,6 +309,47 @@ class RootFSBuilder:
                 )
 
         return destination_root
+
+    # --------------------------------------------------
+    # OLLAMA
+    # --------------------------------------------------
+
+    def install_ollama(self):
+        """Install the Ollama runtime into the VELES rootfs."""
+
+        source = self.HOST_OLLAMA_BINARY
+
+        destination = (
+            self.rootfs_root
+            / "usr"
+            / "local"
+            / "bin"
+            / "ollama"
+        )
+
+        if not source.is_file():
+            raise FileNotFoundError(
+                "Ollama binary was not found at: "
+                f"{source}"
+            )
+
+        destination.parent.mkdir(
+            parents=True,
+            exist_ok=True,
+        )
+
+        print(
+            "[ROOTFS] Installing Ollama AI runtime..."
+        )
+
+        shutil.copy2(
+            source,
+            destination,
+        )
+
+        destination.chmod(0o755)
+
+        return destination
 
     # --------------------------------------------------
     # RUNTIME CONFIGURATION
@@ -496,6 +551,22 @@ class RootFSBuilder:
             + "export PGPASSWORD="
             + shlex.quote(database_password)
             + "\n"
+            + "export VELES_OLLAMA_HOST="
+            + shlex.quote(
+                os.environ.get(
+                    "VELES_OLLAMA_HOST",
+                    "http://localhost:11434",
+                )
+            )
+            + "\n"
+            + "export VELES_OLLAMA_MODEL="
+            + shlex.quote(
+                os.environ.get(
+                    "VELES_OLLAMA_MODEL",
+                    "qwen2.5:7b",
+                )
+            )
+            + "\n"
         )
 
         configuration_path = (
@@ -678,6 +749,66 @@ echo
 
 echo "[INIT] Starting VELES OS..."
 
+# --------------------------------------------------
+# LOOPBACK
+# --------------------------------------------------
+
+echo "[INIT] Preparing loopback interface..."
+
+ip link set lo up
+
+# --------------------------------------------------
+# BASIC WRITABLE RUNTIME FILESYSTEMS
+# --------------------------------------------------
+
+echo "[INIT] Preparing writable /run..."
+
+if ! mountpoint -q /run; then
+    mount -t tmpfs \\
+        -o mode=0755,nosuid,nodev \\
+        tmpfs /run
+fi
+
+mkdir -p /run/veles
+
+echo "[INIT] Preparing writable /tmp..."
+
+if ! mountpoint -q /tmp; then
+    mount -t tmpfs \\
+        -o mode=1777,nosuid,nodev \\
+        tmpfs /tmp
+fi
+
+# --------------------------------------------------
+# OLLAMA WRITABLE STORAGE
+# --------------------------------------------------
+
+echo "[INIT] Preparing writable Ollama storage..."
+
+mkdir -p /var/lib/ollama
+
+if ! mountpoint -q /var/lib/ollama; then
+    mount -t tmpfs \\
+        -o mode=0755,nosuid,nodev \\
+        tmpfs /var/lib/ollama
+fi
+
+# Ollama requires a writable HOME for runtime
+# identity and key files.
+
+export HOME="/run/veles/ollama-home"
+
+mkdir -p "${HOME}"
+
+export OLLAMA_MODELS="/var/lib/ollama"
+
+echo "[INIT] Ollama HOME: ${HOME}"
+echo "[INIT] Ollama storage: ${OLLAMA_MODELS}"
+
+# --------------------------------------------------
+# VELES CONFIGURATION
+# --------------------------------------------------
+
 if [ ! -f /etc/veles/veles.env ]; then
     echo "[INIT] ERROR: VELES runtime configuration not found."
     echo
@@ -700,6 +831,69 @@ if [ -z "${VELES_DATABASE_URL:-}" ]; then
 fi
 
 echo "[INIT] VELES runtime configuration loaded."
+
+# --------------------------------------------------
+# OLLAMA
+# --------------------------------------------------
+
+if [ -x /usr/local/bin/ollama ]; then
+
+    echo "[INIT] Starting Ollama AI runtime..."
+
+    export HOME="/run/veles/ollama-home"
+    export OLLAMA_MODELS="/var/lib/ollama"
+
+    (
+        /usr/local/bin/ollama serve
+    ) >/run/veles/ollama.log 2>&1 &
+
+    OLLAMA_PID=$!
+
+    echo "[INIT] Ollama PID: ${OLLAMA_PID}"
+
+    echo "[INIT] Waiting for Ollama API..."
+
+    OLLAMA_READY=0
+
+    for _ in $(seq 1 30); do
+
+        if ! kill -0 "${OLLAMA_PID}" 2>/dev/null; then
+            break
+        fi
+
+        if wget -q -O /dev/null \\
+            "${VELES_OLLAMA_HOST:-http://localhost:11434}/api/tags" \\
+            >/dev/null 2>&1; then
+
+            OLLAMA_READY=1
+            break
+        fi
+
+        sleep 1
+    done
+
+    if [ "${OLLAMA_READY}" -eq 1 ]; then
+
+        echo "[INIT] Ollama AI runtime: READY"
+
+    else
+
+        echo "[INIT] Ollama AI runtime: OFFLINE"
+        echo "[INIT] VELES will continue without local AI."
+
+        if [ -f /run/veles/ollama.log ]; then
+            echo "[INIT] Ollama log:"
+            cat /run/veles/ollama.log
+        fi
+
+    fi
+
+fi
+
+# --------------------------------------------------
+# VELES RUNTIME
+# --------------------------------------------------
+
 echo "[INIT] Starting VELES Python runtime..."
 
 exec /opt/veles/.venv/bin/python /opt/veles/main.py
@@ -754,11 +948,20 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
             / "veles.env"
         )
 
+        ollama = (
+            self.rootfs_root
+            / "usr"
+            / "local"
+            / "bin"
+            / "ollama"
+        )
+
         required = (
             python,
             python3,
             init,
             environment,
+            ollama,
         )
 
         missing = [
@@ -782,6 +985,16 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
             raise RuntimeError(
                 "VELES runtime configuration is not a regular file: "
                 f"{environment}"
+            )
+
+        if not ollama.is_file():
+            raise RuntimeError(
+                f"Ollama runtime is not a regular file: {ollama}"
+            )
+
+        if not os.access(ollama, os.X_OK):
+            raise RuntimeError(
+                f"Ollama runtime is not executable: {ollama}"
             )
 
         return True
@@ -813,6 +1026,7 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
         self.build_base_system()
         self.prepare_directories()
         self.copy_veles_source()
+        self.install_ollama()
         self.create_runtime_configuration()
         self.create_python_environment()
         self.install_python_dependencies()
@@ -843,6 +1057,7 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
         required = (
             "sbin/veles-init",
             "usr/bin/python3",
+            "usr/local/bin/ollama",
             "opt/veles/main.py",
             "opt/veles/boot/bootstrap.py",
             "opt/veles/kernel/runtime.py",
@@ -852,6 +1067,7 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
             "opt/veles/desktop",
             "opt/veles/.venv/bin/python",
             "etc/veles/veles.env",
+            "var/lib/ollama",
         )
 
         missing = [
@@ -885,6 +1101,13 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
                 / ".venv"
                 / "bin"
                 / "python"
+            ),
+            "ollama": str(
+                self.rootfs_root
+                / "usr"
+                / "local"
+                / "bin"
+                / "ollama"
             ),
             "configuration": str(
                 self.rootfs_root
