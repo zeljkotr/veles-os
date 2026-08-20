@@ -48,6 +48,11 @@ class ApplicationRegistry:
                 "Application metadata must be a dictionary."
             )
 
+        if name in self.applications:
+            raise ValueError(
+                f"Application already registered: {name}"
+            )
+
         self.applications[name] = dict(metadata)
 
         return self.applications[name]

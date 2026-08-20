@@ -4,16 +4,108 @@ VELES OS Bootstrap
 UEFI
   -> Linux Kernel
   -> VELES OS Bootstrap
+  -> Configuration
   -> System Layer
   -> VELES Core
   -> VELES Services
   -> VELES Desktop
 """
 
+from pathlib import Path
+import os
+
 from system.layer import SystemLayer
 from core.runtime import CoreRuntime
 from services.runtime import ServicesRuntime
 from desktop.runtime import DesktopRuntime
+
+
+ENVIRONMENT_VARIABLE = "VELES_ENVIRONMENT_FILE"
+
+
+def _find_environment_file():
+
+    configured_path = os.getenv(
+        ENVIRONMENT_VARIABLE
+    )
+
+    if configured_path:
+        path = Path(configured_path)
+
+        if path.is_file():
+            return path
+
+    system_path = Path(
+        "/etc/veles/veles.env"
+    )
+
+    if system_path.is_file():
+        return system_path
+
+    project_root = Path(
+        __file__
+    ).resolve().parent.parent
+
+    build_path = (
+        project_root
+        / "build"
+        / "rootfs"
+        / "etc"
+        / "veles"
+        / "veles.env"
+    )
+
+    if build_path.is_file():
+        return build_path
+
+    raise FileNotFoundError(
+        "VELES environment file not found. "
+        "Checked configured path, "
+        f"{system_path}, and {build_path}."
+    )
+
+
+def load_environment(path=None):
+    """Load VELES runtime environment configuration."""
+
+    environment_path = (
+        Path(path)
+        if path
+        else _find_environment_file()
+    )
+
+    for line in environment_path.read_text(
+        encoding="utf-8"
+    ).splitlines():
+
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if line.startswith("#"):
+            continue
+
+        if line.startswith("export "):
+            line = line[7:].strip()
+
+        if "=" not in line:
+            continue
+
+        name, value = line.split("=", 1)
+
+        name = name.strip()
+        value = value.strip()
+
+        if (
+            len(value) >= 2
+            and value[0] == value[-1]
+            and value[0] in ("'", '"')
+        ):
+            value = value[1:-1]
+
+        if name:
+            os.environ[name] = value
 
 
 def bootstrap():
@@ -25,6 +117,16 @@ def bootstrap():
     print()
 
     print("[BOOT] Initializing VELES OS...")
+
+    # --------------------------------------
+    # CONFIGURATION
+    # --------------------------------------
+
+    print("[BOOT] Loading VELES configuration...")
+
+    load_environment()
+
+    print("[BOOT] VELES configuration: READY")
 
     # --------------------------------------
     # SYSTEM LAYER

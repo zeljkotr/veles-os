@@ -89,6 +89,9 @@ class WindowManager:
         if name not in self.windows:
             return None
 
+        if self.windows[name]["minimized"]:
+            return None
+
         for window in self.windows.values():
             window["focused"] = False
 
@@ -109,6 +112,11 @@ class WindowManager:
 
         if self.active_window == name:
             self.active_window = None
+
+            for next_window_name, next_window in self.windows.items():
+                if not next_window["minimized"]:
+                    self.focus(next_window_name)
+                    break
 
         return window
 

@@ -121,13 +121,12 @@ class DesktopRuntime:
                 self.web_thread
             )
 
-            if self.web_ready:
-                print("[DESKTOP] Web Interface: READY")
-            else:
-                print(
-                    "[DESKTOP] Web Interface: STARTED "
-                    "but readiness check did not pass."
+            if not self.web_ready:
+                raise RuntimeError(
+                    "Desktop Web Interface failed readiness check."
                 )
+
+            print("[DESKTOP] Web Interface: READY")
 
             # --------------------------------------
             # DESKTOP READY

@@ -48,13 +48,28 @@ class ApplicationRuntime:
 
     def unregister(self, name):
 
+        if not self.ready:
+            raise RuntimeError(
+                "Application Runtime is not running."
+            )
+
         return self.registry.unregister(name)
 
     def get(self, name):
 
+        if not self.ready:
+            raise RuntimeError(
+                "Application Runtime is not running."
+            )
+
         return self.registry.get(name)
 
     def list(self):
+
+        if not self.ready:
+            raise RuntimeError(
+                "Application Runtime is not running."
+            )
 
         return self.registry.list()
 
@@ -64,7 +79,11 @@ class ApplicationRuntime:
             "state": self.state,
             "ready": self.ready,
             "registry": self.registry.status(),
-            "applications": self.registry.list(),
+            "applications": (
+                self.registry.list()
+                if self.ready
+                else {}
+            ),
         }
 
     def stop(self):

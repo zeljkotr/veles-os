@@ -1,18 +1,15 @@
 """
 VELES OS Desktop UI
 
-Connects the VELES Desktop Shell with the
-existing VELES Desktop web interface.
+Connects the VELES Desktop UI with the
+VELES Desktop Shell.
 """
-
-from desktop.app import app
 
 
 class DesktopUI:
 
     def __init__(self, shell):
         self.shell = shell
-        self.app = app
         self.running = False
 
     def start(self):

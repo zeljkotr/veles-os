@@ -24,16 +24,21 @@ class CoreRuntime:
         # DATABASE
         # ----------------------------------
 
-        database_result = test_connection()
+        try:
+            database_result = test_connection()
 
-        if database_result is None:
+            if database_result is None:
+                print("[CORE] Database: OFFLINE")
+            else:
+                self.database = {
+                    "status": "ready"
+                }
+
+                print("[CORE] Database: READY")
+
+        except Exception as error:
             print("[CORE] Database: OFFLINE")
-        else:
-            self.database = {
-                "status": "ready"
-            }
-
-            print("[CORE] Database: READY")
+            print("[CORE] Database error:", error)
 
         # ----------------------------------
         # EVENTS
@@ -54,13 +59,8 @@ class CoreRuntime:
             print("[CORE] Events: READY")
 
         except Exception as error:
-            print(
-                "[CORE] Events: OFFLINE"
-            )
-            print(
-                "[CORE] Event system error:",
-                error
-            )
+            print("[CORE] Events: OFFLINE")
+            print("[CORE] Event system error:", error)
 
         # ----------------------------------
         # CORE STATE
