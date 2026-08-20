@@ -27,9 +27,9 @@ Boot flow:
     /sbin/veles-init
 
 Network initialization is hardware-independent.
-The initramfs discovers available PCI devices,
-loads matching kernel modules through their aliases,
-and obtains an address through DHCP.
+The initramfs includes the minimal kernel drivers
+required for the boot environment and common virtual
+hardware.
 
 This module does not modify the host boot configuration.
 """
@@ -147,6 +147,17 @@ class InitramfsBuilder:
             raise FileNotFoundError(
                 f"Kernel module dependency database not found: "
                 f"{modules_dep}"
+            )
+
+        modules_builtin = (
+            self.modules_root
+            / "modules.builtin"
+        )
+
+        if not modules_builtin.exists():
+            raise FileNotFoundError(
+                f"Kernel built-in module database not found: "
+                f"{modules_builtin}"
             )
 
         return True
@@ -387,13 +398,221 @@ exit 0
     # KERNEL MODULES
     # --------------------------------------------------
 
+    @staticmethod
+    def _module_key(path):
+        """
+        Return a normalized kernel module name.
+
+        Examples:
+
+            squashfs.ko.zst -> squashfs
+            sr_mod.ko       -> sr_mod
+            e1000.ko.xz     -> e1000
+        """
+
+        name = path.name
+
+        for suffix in (
+            ".ko.zst",
+            ".ko.xz",
+            ".ko.gz",
+            ".ko",
+        ):
+            if name.endswith(suffix):
+                return name[: -len(suffix)]
+
+        return None
+
+    def _build_module_index(self):
+        """
+        Build an index of available loadable kernel modules.
+
+        Only module files are indexed. Built-in kernel
+        modules are handled separately through modules.builtin.
+        """
+
+        index = {}
+
+        patterns = (
+            "*.ko",
+            "*.ko.zst",
+            "*.ko.xz",
+            "*.ko.gz",
+        )
+
+        for pattern in patterns:
+            for module in self.modules_root.rglob(pattern):
+                key = self._module_key(module)
+
+                if key:
+                    index[key] = module
+
+        if not index:
+            raise RuntimeError(
+                f"No loadable kernel modules found for "
+                f"{self.kernel_release}."
+            )
+
+        return index
+
+    def _read_builtin_modules(self):
+        """
+        Read the host kernel's built-in module database.
+
+        Returns a set containing normalized module names for
+        drivers compiled directly into the kernel.
+        """
+
+        modules_builtin = (
+            self.modules_root
+            / "modules.builtin"
+        )
+
+        builtin_modules = set()
+
+        for line in modules_builtin.read_text(
+            encoding="utf-8",
+            errors="replace",
+        ).splitlines():
+
+            line = line.strip()
+
+            if not line:
+                continue
+
+            module_name = self._module_key(
+                Path(line)
+            )
+
+            if module_name:
+                builtin_modules.add(
+                    module_name
+                )
+
+        return builtin_modules
+
+    def _read_module_dependencies(self):
+        """
+        Read the host kernel's modules.dep database.
+
+        Returns:
+
+            {
+                "module-name": [
+                    "dependency-name",
+                    ...
+                ]
+            }
+        """
+
+        modules_dep = (
+            self.modules_root
+            / "modules.dep"
+        )
+
+        dependencies = {}
+
+        for line in modules_dep.read_text(
+            encoding="utf-8",
+            errors="replace",
+        ).splitlines():
+
+            if ":" not in line:
+                continue
+
+            module_path, dependency_text = (
+                line.split(":", 1)
+            )
+
+            module_name = self._module_key(
+                Path(module_path)
+            )
+
+            if not module_name:
+                continue
+
+            dependency_names = []
+
+            for dependency in dependency_text.split():
+
+                dependency_name = self._module_key(
+                    Path(dependency)
+                )
+
+                if dependency_name:
+                    dependency_names.append(
+                        dependency_name
+                    )
+
+            dependencies[module_name] = dependency_names
+
+        return dependencies
+
+    def _resolve_module_dependencies(
+        self,
+        required_names,
+        module_index,
+        dependency_map,
+        builtin_modules,
+    ):
+        """
+        Resolve the complete dependency closure for the
+        small set of modules required by the VELES boot path.
+
+        Built-in kernel modules do not need to be copied into
+        the initramfs and therefore terminate dependency
+        resolution.
+        """
+
+        resolved = set()
+        visiting = set()
+
+        def visit(name):
+
+            if name in resolved:
+                return
+
+            if name in builtin_modules:
+                resolved.add(name)
+                return
+
+            if name in visiting:
+                return
+
+            if name not in module_index:
+                raise RuntimeError(
+                    "Required kernel module was not found: "
+                    f"{name}"
+                )
+
+            visiting.add(name)
+
+            for dependency in dependency_map.get(
+                name,
+                [],
+            ):
+                visit(dependency)
+
+            visiting.remove(name)
+            resolved.add(name)
+
+        for name in required_names:
+            visit(name)
+
+        return {
+            name
+            for name in resolved
+            if name in module_index
+        }
+
     def install_kernel_modules(self):
         """
-        Install the selected kernel's module tree into
-        the initramfs.
+        Install only the loadable kernel modules required by
+        the VELES early boot environment and their
+        dependencies.
 
-        The source tree may contain compressed .ko.zst,
-        .ko.xz or .ko.gz modules. They are copied unchanged.
+        Kernel functionality compiled directly into the
+        selected kernel is not copied into the initramfs.
         """
 
         destination = (
@@ -408,43 +627,111 @@ exit 0
             exist_ok=True,
         )
 
-        modules = list(
-            self.modules_root.rglob("*.ko")
+        module_index = (
+            self._build_module_index()
         )
 
-        modules.extend(
-            self.modules_root.rglob("*.ko.zst")
+        builtin_modules = (
+            self._read_builtin_modules()
         )
 
-        modules.extend(
-            self.modules_root.rglob("*.ko.xz")
+        dependency_map = (
+            self._read_module_dependencies()
         )
 
-        modules.extend(
-            self.modules_root.rglob("*.ko.gz")
-        )
-
-        if not modules:
-            raise RuntimeError(
-                f"No kernel modules found for "
-                f"{self.kernel_release}."
-            )
+        # --------------------------------------------------
+        # VELES EARLY BOOT MODULE SET
+        # --------------------------------------------------
+        #
+        # ISO/CD-ROM:
+        #
+        #   cdrom
+        #   sr_mod
+        #   isofs
+        #
+        # SquashFS:
+        #
+        #   squashfs
+        #
+        # Loop support:
+        #
+        #   loop
+        #
+        # QEMU / common virtual network:
+        #
+        #   e1000
+        #   virtio_net
+        #   virtio_pci
+        #
+        # QEMU IDE / storage:
+        #
+        #   ata_piix
+        #
+        # Built-in modules are accepted automatically.
+        # Only loadable modules and their dependencies are
+        # copied into the initramfs.
+        #
 
         required_names = (
+            "cdrom",
+            "sr_mod",
             "isofs",
+            "squashfs",
+            "loop",
+            "e1000",
+            "virtio_net",
+            "virtio_pci",
+            "ata_piix",
         )
 
-        found_required = {
-            name: False
+        missing_seeds = [
+            name
             for name in required_names
-        }
+            if name not in module_index
+            and name not in builtin_modules
+        ]
 
-        for module in modules:
+        if missing_seeds:
+            raise RuntimeError(
+                "Required kernel modules were not found "
+                f"for {self.kernel_release}: "
+                + ", ".join(missing_seeds)
+            )
+
+        selected_names = (
+            self._resolve_module_dependencies(
+                required_names,
+                module_index,
+                dependency_map,
+                builtin_modules,
+            )
+        )
+
+        print(
+            "[INITRAMFS] Built-in kernel modules: "
+            f"{sum(name in builtin_modules for name in required_names)}"
+        )
+
+        print(
+            "[INITRAMFS] Selected loadable kernel modules: "
+            f"{len(selected_names)}"
+        )
+
+        copied = 0
+
+        for module_name in sorted(
+            selected_names
+        ):
+            module = module_index[module_name]
+
             relative = module.relative_to(
                 self.modules_root
             )
 
-            target = destination / relative
+            target = (
+                destination
+                / relative
+            )
 
             target.parent.mkdir(
                 parents=True,
@@ -456,27 +743,18 @@ exit 0
                 target,
             )
 
-            module_path = str(module)
+            copied += 1
 
-            for required in required_names:
-                if (
-                    f"/{required}.ko" in module_path
-                    or f"/{required}.ko." in module_path
-                ):
-                    found_required[required] = True
-
-        missing = [
-            name
-            for name, found in found_required.items()
-            if not found
-        ]
-
-        if missing:
+        if copied <= 0:
             raise RuntimeError(
-                "Required kernel modules were not found "
-                f"for {self.kernel_release}: "
-                + ", ".join(missing)
+                "No loadable kernel modules were copied "
+                "into the VELES initramfs."
             )
+
+        print(
+            "[INITRAMFS] Kernel modules copied: "
+            f"{copied}"
+        )
 
         return destination
 
@@ -597,12 +875,12 @@ for interface_path in /sys/class/net/*; do
 
     ifconfig "$interface" up 2>/dev/null || true
 
-    if udhcpc \
-        -i "$interface" \
-        -n \
-        -q \
-        -t 5 \
-        -T 3 \
+    if udhcpc \\
+        -i "$interface" \\
+        -n \\
+        -q \\
+        -t 5 \\
+        -T 3 \\
         -s /bin/udhcpc.script
     then
         echo "[INITRAMFS] Network ready: $interface"
@@ -630,6 +908,8 @@ echo "[INITRAMFS] Loading storage modules..."
 modprobe cdrom 2>/dev/null || true
 modprobe sr_mod 2>/dev/null || true
 modprobe isofs 2>/dev/null || true
+modprobe squashfs 2>/dev/null || true
+modprobe loop 2>/dev/null || true
 
 echo "[INITRAMFS] Waiting for boot device..."
 

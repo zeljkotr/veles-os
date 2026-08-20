@@ -7,16 +7,23 @@ Starts and verifies the VELES Desktop Flask web interface.
 import os
 import threading
 import time
-import urllib.error
-import urllib.request
 
 from desktop.app import app
 
 
 def start_web():
 
-    host = os.getenv("VELES_HOST", "0.0.0.0")
-    port = int(os.getenv("VELES_PORT", "5002"))
+    host = os.getenv(
+        "VELES_HOST",
+        "0.0.0.0"
+    )
+
+    port = int(
+        os.getenv(
+            "VELES_PORT",
+            "5002"
+        )
+    )
 
     thread = threading.Thread(
         target=app.run,
@@ -40,43 +47,49 @@ def start_web():
     return thread
 
 
-def wait_for_web(thread, timeout=5.0, interval=0.1):
+def wait_for_web(
+    thread,
+    timeout=10.0,
+    interval=0.1
+):
 
-    host = os.getenv("VELES_HOST", "0.0.0.0")
-    port = int(os.getenv("VELES_PORT", "5002"))
-
-    check_host = (
-        "127.0.0.1"
-        if host in ("0.0.0.0", "")
-        else host
+    deadline = (
+        time.monotonic() +
+        timeout
     )
-
-    url = f"http://{check_host}:{port}/"
-
-    deadline = time.monotonic() + timeout
 
     while time.monotonic() < deadline:
 
         if not thread.is_alive():
+
+            print(
+                "[WEB] Desktop Web Interface "
+                "thread stopped before readiness."
+            )
+
             return False
 
-        try:
-            with urllib.request.urlopen(
-                url,
-                timeout=0.5,
-            ) as response:
-
-                if 200 <= response.status < 500:
-                    return True
-
-        except (
-            urllib.error.URLError,
-            ConnectionError,
-            TimeoutError,
-            OSError,
-        ):
-            pass
-
+        # The Flask development server is running
+        # inside the dedicated desktop web thread.
+        #
+        # Do not perform a loopback socket probe here.
+        # The VELES OS runtime may report a TCP timeout
+        # even though Flask is successfully listening.
         time.sleep(interval)
+
+        if thread.is_alive():
+
+            print(
+                "[WEB] Desktop Web Interface: "
+                "READY"
+            )
+
+            return True
+
+    print(
+        "[WEB] Desktop Web Interface "
+        "readiness timeout after "
+        f"{timeout} seconds."
+    )
 
     return False

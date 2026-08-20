@@ -20,3 +20,7 @@ desktop/static/audio/*.wav
 .mypy_cache/
 .ruff_cache/
 
+
+build/
+
+build/
