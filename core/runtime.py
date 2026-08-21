@@ -1,11 +1,13 @@
 """
 VELES OS Core Runtime
 
-Coordinates the existing VELES Core subsystems.
+Coordinates the existing VELES Core subsystems
+and the VELES OS module registry.
 """
 
 from core.database.connection import test_connection
 from core.events import log_event
+from core.modules.registry import ModuleRegistry
 
 
 class CoreRuntime:
@@ -13,6 +15,7 @@ class CoreRuntime:
 
     def __init__(self):
         self.database = None
+        self.registry = ModuleRegistry()
         self.ready = False
 
     def start(self):
@@ -63,6 +66,14 @@ class CoreRuntime:
             print("[CORE] Event system error:", error)
 
         # ----------------------------------
+        # MODULE REGISTRY
+        # ----------------------------------
+
+        self.registry = ModuleRegistry()
+
+        print("[CORE] Module Registry: READY")
+
+        # ----------------------------------
         # CORE STATE
         # ----------------------------------
 
@@ -79,6 +90,19 @@ class CoreRuntime:
             return
 
         print("[CORE] Stopping VELES Core...")
+
+        # ----------------------------------
+        # MODULE REGISTRY
+        # ----------------------------------
+
+        try:
+            self.registry.stop_all()
+        except Exception:
+            pass
+
+        # ----------------------------------
+        # EVENTS
+        # ----------------------------------
 
         try:
             log_event("core.stopped")

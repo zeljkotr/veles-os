@@ -47,6 +47,8 @@ class RootFSBuilder:
         "kmod",
         "udev",
         "systemd-sysv",
+        "mount",
+        "wget",
     )
 
     EXCLUDED_DIRECTORIES = {
@@ -206,6 +208,21 @@ class RootFSBuilder:
         )
 
         print(
+            "[ROOTFS] Distribution: "
+            f"{self.distribution}"
+        )
+
+        print(
+            "[ROOTFS] Codename: "
+            f"{self.codename}"
+        )
+
+        print(
+            "[ROOTFS] Architecture: "
+            f"{self.architecture}"
+        )
+
+        print(
             "[ROOTFS] Components: "
             + ", ".join(self.components)
         )
@@ -239,6 +256,7 @@ class RootFSBuilder:
             "opt/veles",
             "etc/veles",
             "usr/local/bin",
+            "sbin",
         )
 
         for relative in directories:
@@ -276,6 +294,10 @@ class RootFSBuilder:
             self.rootfs_root
             / "opt"
             / "veles"
+        )
+
+        print(
+            "[ROOTFS] Copying VELES OS source tree..."
         )
 
         for source in self.source_root.rglob("*"):
@@ -411,6 +433,8 @@ class RootFSBuilder:
                 "VELES_DATABASE_URL",
                 "VELES_DATABASE_PASSWORD",
                 "PGPASSWORD",
+                "VELES_OLLAMA_HOST",
+                "VELES_OLLAMA_MODEL",
             }:
                 continue
 
@@ -544,6 +568,30 @@ class RootFSBuilder:
             database_password,
         ) = self._database_configuration()
 
+        host_configuration = (
+            self._read_host_runtime_configuration()
+        )
+
+        ollama_host = os.environ.get(
+            "VELES_OLLAMA_HOST"
+        )
+
+        if not ollama_host:
+            ollama_host = host_configuration.get(
+                "VELES_OLLAMA_HOST",
+                "http://127.0.0.1:11434",
+            )
+
+        ollama_model = os.environ.get(
+            "VELES_OLLAMA_MODEL"
+        )
+
+        if not ollama_model:
+            ollama_model = host_configuration.get(
+                "VELES_OLLAMA_MODEL",
+                "qwen2.5:7b",
+            )
+
         configuration = (
             "export VELES_DATABASE_URL="
             + shlex.quote(database_url)
@@ -552,20 +600,10 @@ class RootFSBuilder:
             + shlex.quote(database_password)
             + "\n"
             + "export VELES_OLLAMA_HOST="
-            + shlex.quote(
-                os.environ.get(
-                    "VELES_OLLAMA_HOST",
-                    "http://localhost:11434",
-                )
-            )
+            + shlex.quote(ollama_host)
             + "\n"
             + "export VELES_OLLAMA_MODEL="
-            + shlex.quote(
-                os.environ.get(
-                    "VELES_OLLAMA_MODEL",
-                    "qwen2.5:7b",
-                )
-            )
+            + shlex.quote(ollama_model)
             + "\n"
         )
 
@@ -750,12 +788,20 @@ echo
 echo "[INIT] Starting VELES OS..."
 
 # --------------------------------------------------
+# BASIC ENVIRONMENT
+# --------------------------------------------------
+
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+# --------------------------------------------------
 # LOOPBACK
 # --------------------------------------------------
 
 echo "[INIT] Preparing loopback interface..."
 
-ip link set lo up
+if command -v ip >/dev/null 2>&1; then
+    ip link set lo up || true
+fi
 
 # --------------------------------------------------
 # BASIC WRITABLE RUNTIME FILESYSTEMS
@@ -763,7 +809,9 @@ ip link set lo up
 
 echo "[INIT] Preparing writable /run..."
 
-if ! mountpoint -q /run; then
+mkdir -p /run
+
+if ! mountpoint -q /run 2>/dev/null; then
     mount -t tmpfs \\
         -o mode=0755,nosuid,nodev \\
         tmpfs /run
@@ -773,10 +821,34 @@ mkdir -p /run/veles
 
 echo "[INIT] Preparing writable /tmp..."
 
-if ! mountpoint -q /tmp; then
+mkdir -p /tmp
+
+if ! mountpoint -q /tmp 2>/dev/null; then
     mount -t tmpfs \\
         -o mode=1777,nosuid,nodev \\
         tmpfs /tmp
+fi
+
+chmod 1777 /tmp
+
+# --------------------------------------------------
+# DEV / PROC / SYS
+# --------------------------------------------------
+
+echo "[INIT] Preparing kernel filesystems..."
+
+mkdir -p /dev /proc /sys
+
+if ! mountpoint -q /proc 2>/dev/null; then
+    mount -t proc proc /proc || true
+fi
+
+if ! mountpoint -q /sys 2>/dev/null; then
+    mount -t sysfs sysfs /sys || true
+fi
+
+if ! mountpoint -q /dev 2>/dev/null; then
+    mount -t devtmpfs devtmpfs /dev || true
 fi
 
 # --------------------------------------------------
@@ -787,14 +859,15 @@ echo "[INIT] Preparing writable Ollama storage..."
 
 mkdir -p /var/lib/ollama
 
-if ! mountpoint -q /var/lib/ollama; then
+if ! mountpoint -q /var/lib/ollama 2>/dev/null; then
     mount -t tmpfs \\
         -o mode=0755,nosuid,nodev \\
         tmpfs /var/lib/ollama
 fi
 
-# Ollama requires a writable HOME for runtime
-# identity and key files.
+# --------------------------------------------------
+# OLLAMA HOME
+# --------------------------------------------------
 
 export HOME="/run/veles/ollama-home"
 
@@ -810,11 +883,13 @@ echo "[INIT] Ollama storage: ${OLLAMA_MODELS}"
 # --------------------------------------------------
 
 if [ ! -f /etc/veles/veles.env ]; then
+
     echo "[INIT] ERROR: VELES runtime configuration not found."
     echo
     echo "[INIT] Expected:"
     echo "  /etc/veles/veles.env"
     echo
+
     exec /bin/sh
 fi
 
@@ -825,8 +900,10 @@ set -a
 set +a
 
 if [ -z "${VELES_DATABASE_URL:-}" ]; then
+
     echo "[INIT] ERROR: VELES_DATABASE_URL is not configured."
     echo
+
     exec /bin/sh
 fi
 
@@ -843,9 +920,8 @@ if [ -x /usr/local/bin/ollama ]; then
     export HOME="/run/veles/ollama-home"
     export OLLAMA_MODELS="/var/lib/ollama"
 
-    (
-        /usr/local/bin/ollama serve
-    ) >/run/veles/ollama.log 2>&1 &
+    /usr/local/bin/ollama serve \
+        >/run/veles/ollama.log 2>&1 &
 
     OLLAMA_PID=$!
 
@@ -861,12 +937,28 @@ if [ -x /usr/local/bin/ollama ]; then
             break
         fi
 
-        if wget -q -O /dev/null \\
-            "${VELES_OLLAMA_HOST:-http://localhost:11434}/api/tags" \\
-            >/dev/null 2>&1; then
+        if command -v wget >/dev/null 2>&1; then
 
-            OLLAMA_READY=1
-            break
+            if wget -q -O /dev/null \\
+                "${VELES_OLLAMA_HOST:-http://127.0.0.1:11434}/api/tags" \\
+                >/dev/null 2>&1; then
+
+                OLLAMA_READY=1
+                break
+            fi
+
+        elif command -v python3 >/dev/null 2>&1; then
+
+            if python3 -c \\
+                'import urllib.request; urllib.request.urlopen(
+                    "http://127.0.0.1:11434/api/tags",
+                    timeout=1
+                )' \\
+                >/dev/null 2>&1; then
+
+                OLLAMA_READY=1
+                break
+            fi
         fi
 
         sleep 1
@@ -885,8 +977,12 @@ if [ -x /usr/local/bin/ollama ]; then
             echo "[INIT] Ollama log:"
             cat /run/veles/ollama.log
         fi
-
     fi
+
+else
+
+    echo "[INIT] Ollama binary not found."
+    echo "[INIT] VELES will continue without local AI."
 
 fi
 
@@ -895,6 +991,17 @@ fi
 # --------------------------------------------------
 
 echo "[INIT] Starting VELES Python runtime..."
+
+if [ ! -x /opt/veles/.venv/bin/python ]; then
+
+    echo "[INIT] ERROR: VELES Python runtime is missing."
+    echo
+    echo "Expected:"
+    echo "  /opt/veles/.venv/bin/python"
+    echo
+
+    exec /bin/sh
+fi
 
 exec /opt/veles/.venv/bin/python /opt/veles/main.py
 """,
@@ -997,6 +1104,16 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
                 f"Ollama runtime is not executable: {ollama}"
             )
 
+        if not init.is_file():
+            raise RuntimeError(
+                f"VELES init entrypoint is not a regular file: {init}"
+            )
+
+        if not os.access(init, os.X_OK):
+            raise RuntimeError(
+                f"VELES init entrypoint is not executable: {init}"
+            )
+
         return True
 
     # --------------------------------------------------
@@ -1014,6 +1131,10 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
         self.validate_environment()
 
         if self.rootfs_root.exists():
+            print(
+                "[ROOTFS] Removing previous root filesystem..."
+            )
+
             shutil.rmtree(
                 self.rootfs_root
             )

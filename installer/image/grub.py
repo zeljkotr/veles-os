@@ -106,7 +106,6 @@ class GRUBISOBuilder:
         """Build a bootable VELES OS ISO."""
 
         self.validate_staging()
-
         self.discover_tool()
 
         self.output_iso.parent.mkdir(
@@ -121,10 +120,23 @@ class GRUBISOBuilder:
             self.grub_mkrescue,
             "-o",
             str(self.output_iso),
+
+            # ISO Level 3 is required because the VELES
+            # rootfs.squashfs can exceed the ISO Level 1/2
+            # single-file 4 GiB limit.
+            "-iso-level",
+            "3",
+
             str(self.staging_root),
         ]
 
-        print("[GRUB] Building VELES OS bootable ISO...")
+        print(
+            "[GRUB] Building VELES OS bootable ISO..."
+        )
+
+        print(
+            "[GRUB] ISO filesystem level: 3"
+        )
 
         subprocess.run(
             command,

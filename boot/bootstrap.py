@@ -108,6 +108,39 @@ def load_environment(path=None):
             os.environ[name] = value
 
 
+def stop(state):
+
+    if not state:
+        return
+
+    print()
+    print("[BOOT] Stopping VELES OS...")
+
+    desktop = state.get("desktop")
+    services = state.get("services")
+    core = state.get("core")
+    system = state.get("system_layer")
+
+    if desktop is not None:
+        print("[BOOT] Stopping VELES Desktop...")
+        desktop.stop()
+
+    if services is not None:
+        print("[BOOT] Stopping VELES Services...")
+        services.stop()
+
+    if core is not None:
+        print("[BOOT] Stopping VELES Core...")
+        core.stop()
+
+    if system is not None:
+        print("[BOOT] Stopping System Layer...")
+        system.stop()
+
+    print("[BOOT] VELES OS stopped.")
+    print()
+
+
 def bootstrap():
 
     print()
@@ -118,62 +151,92 @@ def bootstrap():
 
     print("[BOOT] Initializing VELES OS...")
 
-    # --------------------------------------
-    # CONFIGURATION
-    # --------------------------------------
-
-    print("[BOOT] Loading VELES configuration...")
-
-    load_environment()
-
-    print("[BOOT] VELES configuration: READY")
-
-    # --------------------------------------
-    # SYSTEM LAYER
-    # --------------------------------------
-
-    system = SystemLayer()
-    system.start()
-
-    # --------------------------------------
-    # VELES CORE
-    # --------------------------------------
-
-    core = CoreRuntime()
-    core.start()
-
-    # --------------------------------------
-    # VELES SERVICES
-    # --------------------------------------
-
-    services = ServicesRuntime()
-    services.start()
-
-    # --------------------------------------
-    # VELES DESKTOP
-    # --------------------------------------
-
-    desktop = DesktopRuntime(
-        system=system,
-        core=core,
-        services=services,
-    )
-
-    desktop.start()
-
-    # --------------------------------------
-    # RUNTIME STATE
-    # --------------------------------------
-
     state = {
-        "system_layer": system,
-        "core": core,
-        "services": services,
-        "desktop": desktop,
+        "system_layer": None,
+        "core": None,
+        "services": None,
+        "desktop": None,
     }
 
-    print()
-    print("[BOOT] VELES OS bootstrap complete.")
-    print()
+    try:
 
-    return state
+        # --------------------------------------
+        # CONFIGURATION
+        # --------------------------------------
+
+        print("[BOOT] Loading VELES configuration...")
+
+        load_environment()
+
+        print("[BOOT] VELES configuration: READY")
+
+        # --------------------------------------
+        # SYSTEM LAYER
+        # --------------------------------------
+
+        system = SystemLayer()
+        system.start()
+
+        state["system_layer"] = system
+
+        # --------------------------------------
+        # VELES CORE
+        # --------------------------------------
+
+        core = CoreRuntime()
+        core.start()
+
+        state["core"] = core
+
+        # --------------------------------------
+        # VELES SERVICES
+        # --------------------------------------
+
+        services = ServicesRuntime()
+        services.start()
+
+        state["services"] = services
+
+        # --------------------------------------
+        # VELES DESKTOP
+        # --------------------------------------
+
+        desktop = DesktopRuntime(
+            system=system,
+            core=core,
+            services=services,
+        )
+
+        desktop.start()
+
+        state["desktop"] = desktop
+
+        # --------------------------------------
+        # RUNTIME STATE
+        # --------------------------------------
+
+        state["ready"] = True
+        state["stopped"] = False
+
+        print()
+        print("[BOOT] VELES OS bootstrap complete.")
+        print("[BOOT] VELES OS: READY")
+        print()
+
+        return state
+
+    except Exception:
+
+        print()
+        print("[BOOT] VELES OS startup failed.")
+        print("[BOOT] Cleaning up started layers...")
+
+        try:
+            stop(state)
+        except Exception as cleanup_error:
+            print(
+                "[BOOT] Cleanup failed:",
+                cleanup_error,
+            )
+
+        raise
