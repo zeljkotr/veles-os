@@ -1,5 +1,6 @@
+cat > ~/veles-os/installer/install.sh << 'EOF'
 #!/bin/sh
-# VELES OS Installer
+# VELES OS Installer Wrapper
 
 set -eu
 
@@ -8,10 +9,16 @@ echo "           VELES OS INSTALLER"
 echo "========================================"
 echo
 
-# Mount SquashFS da dobijemo Python
-mkdir -p /run/rootfs
-mount -t squashfs -o ro /veles/rootfs.squashfs /run/rootfs
+# Python je u /newroot (mount-ovan SquashFS)
+if [ ! -x /newroot/opt/veles/.venv/bin/python ]; then
+    echo "ERROR: VELES Python runtime not found!"
+    echo
+    exec /bin/sh
+fi
 
-# Pokreni Python installer
-exec /run/rootfs/opt/veles/.venv/bin/python \
-    /run/rootfs/installer/image/installer.py
+# Pokreni installer sa /newroot kao root
+exec /newroot/opt/veles/.venv/bin/python \
+    /newroot/installer/image/installer.py
+EOF
+
+chmod +x ~/veles-os/installer/install.sh

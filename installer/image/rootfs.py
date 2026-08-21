@@ -60,7 +60,6 @@ class RootFSBuilder:
 
     EXCLUDED_DIRECTORIES = {
         ".git",
-        ".venv",
         "__pycache__",
         "build",
     }
@@ -341,7 +340,7 @@ class RootFSBuilder:
                 )
 
         # --------------------------------------------------
-        # INSTALLER - Copy to rootfs root
+        # INSTALLER - Copy to rootfs root (/installer)
         # --------------------------------------------------
 
         installer_src = self.source_root / "installer"
@@ -349,7 +348,7 @@ class RootFSBuilder:
 
         if installer_src.exists():
             print(
-                "[ROOTFS] Copying VELES installer..."
+                "[ROOTFS] Copying VELES installer to /installer..."
             )
 
             if installer_dst.exists():
@@ -360,10 +359,25 @@ class RootFSBuilder:
                 installer_dst,
             )
 
-            # Make install.sh executable if it exists
+            # Make install.sh executable
             install_sh = installer_dst / "install.sh"
             if install_sh.exists():
                 install_sh.chmod(0o755)
+
+        # --------------------------------------------------
+        # COPY .venv TO SQUASHFS
+        # --------------------------------------------------
+        
+        venv_src = self.source_root / ".venv"
+        venv_dst = destination_root / ".venv"
+        
+        if venv_src.exists():
+            print(
+                "[ROOTFS] Copying VELES Python virtual environment..."
+            )
+            shutil.copytree(venv_src, venv_dst, dirs_exist_ok=True)
+        else:
+            print("[ROOTFS] WARNING: .venv not found, will create fresh")
 
         return destination_root
 
