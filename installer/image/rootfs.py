@@ -49,6 +49,13 @@ class RootFSBuilder:
         "systemd-sysv",
         "mount",
         "wget",
+        "rsync",
+        "parted",
+        "dosfstools",
+        "grub-efi-amd64",
+        "grub-efi-amd64-bin",
+        "grub-efi-amd64-signed",
+        "efibootmgr",
     )
 
     EXCLUDED_DIRECTORIES = {
@@ -252,11 +259,14 @@ class RootFSBuilder:
             "var/tmp",
             "var/lib",
             "var/lib/ollama",
+            "var/lib/veles",
             "opt",
             "opt/veles",
             "etc/veles",
             "usr/local/bin",
             "sbin",
+            "boot/efi",
+            "installer",
         )
 
         for relative in directories:
@@ -329,6 +339,31 @@ class RootFSBuilder:
                     source,
                     destination,
                 )
+
+        # --------------------------------------------------
+        # INSTALLER - Copy to rootfs root
+        # --------------------------------------------------
+
+        installer_src = self.source_root / "installer"
+        installer_dst = self.rootfs_root / "installer"
+
+        if installer_src.exists():
+            print(
+                "[ROOTFS] Copying VELES installer..."
+            )
+
+            if installer_dst.exists():
+                shutil.rmtree(installer_dst)
+
+            shutil.copytree(
+                installer_src,
+                installer_dst,
+            )
+
+            # Make install.sh executable if it exists
+            install_sh = installer_dst / "install.sh"
+            if install_sh.exists():
+                install_sh.chmod(0o755)
 
         return destination_root
 
@@ -1189,6 +1224,8 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
             "opt/veles/.venv/bin/python",
             "etc/veles/veles.env",
             "var/lib/ollama",
+            "installer/image/installer.py",
+            "installer/install.sh",
         )
 
         missing = [

@@ -199,6 +199,11 @@ menuentry "VELES OS" {
     linux /boot/vmlinuz console=tty0 console=ttyS0,115200
     initrd /boot/veles-initramfs.img
 }
+
+menuentry "Install VELES OS" {
+    linux /boot/vmlinuz console=tty0 console=ttyS0,115200 init=/installer/install.sh
+    initrd /boot/veles-initramfs.img
+}
 """,
             encoding="utf-8",
         )
