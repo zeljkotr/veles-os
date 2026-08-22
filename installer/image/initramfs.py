@@ -1,4 +1,4 @@
-"""VELES OS Initramfs - DIREKTNO KOPIRANJE"""
+"""VELES OS Initramfs - SA MOUNT /mnt"""
 
 from __future__ import annotations
 import os
@@ -115,17 +115,6 @@ exit 0
         dst = self.work_root / "lib" / "modules" / self.kernel_release
         dst.mkdir(parents=True, exist_ok=True)
         
-        # DIREKTNO KOPIRANJE FAT MODULA - KLJUČNO!
-        fat_src = self.modules_root / "kernel/fs/fat"
-        if fat_src.exists():
-            print("[INITRAMFS] Copying FAT module directly...")
-            fat_dst = dst / "kernel/fs/fat"
-            fat_dst.mkdir(parents=True, exist_ok=True)
-            for f in fat_src.glob("*.ko*"):
-                shutil.copy2(f, fat_dst / f.name)
-                print(f"[INITRAMFS] Copied: {f.name}")
-        
-        # KOPIRAJ SVE MODULE
         print("[INITRAMFS] Copying all modules...")
         copied = 0
         for m in self.modules_root.rglob("*.ko*"):
@@ -162,7 +151,9 @@ mount -t devtmpfs devtmpfs /dev
 mount -t tmpfs tmpfs /run
 exec >/dev/console 2>&1
 set -x
-mkdir -p /mnt /mnt/boot /mnt/test /newroot
+# KLJUCNO: Mount /mnt kao tmpfs (read-write)!
+mount -t tmpfs tmpfs /mnt
+mkdir -p /mnt/boot /mnt/test /newroot
 echo "[INITRAMFS] Initializing network..."
 for dev in /sys/bus/pci/devices/*; do
     [ -f "$dev/modalias" ] && modprobe "$(cat "$dev/modalias")" 2>/dev/null || true
@@ -178,12 +169,7 @@ for iface in /sys/class/net/*; do
         break
     fi
 done
-echo "[INITRAMFS] Loading FAT module directly..."
-if [ -d /lib/modules/{self.kernel_release}/kernel/fs/fat ]; then
-    for m in /lib/modules/{self.kernel_release}/kernel/fs/fat/*.ko*; do
-        [ -f "$m" ] && insmod "$m" 2>/dev/null && echo "[INITRAMFS] Loaded: $m"
-    done
-fi
+echo "[INITRAMFS] Loading storage modules..."
 modprobe fat 2>/dev/null || true
 modprobe vfat 2>/dev/null || true
 modprobe nls_utf8 2>/dev/null || true
@@ -198,6 +184,9 @@ modprobe ext4 2>/dev/null || true
 modprobe nvme 2>/dev/null || true
 modprobe ahci 2>/dev/null || true
 modprobe virtio_blk 2>/dev/null || true
+modprobe virtio_pci 2>/dev/null || true
+modprobe virtio_net 2>/dev/null || true
+modprobe virtio 2>/dev/null || true
 modprobe sd_mod 2>/dev/null || true
 echo "[INITRAMFS] Waiting for boot device..."
 ROOT_DEVICE=""

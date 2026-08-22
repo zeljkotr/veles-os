@@ -10,19 +10,18 @@ The resulting filesystem contains:
 - VELES Python dependencies
 - Ollama AI runtime
 - a standalone VELES runtime entrypoint
-- VELES runtime configuration
+- generic VELES runtime configuration
 
-This module does not modify the installed host system.
+This module does not copy host-specific credentials into the
+final VELES OS image.
 """
 
 from __future__ import annotations
 
 import os
-import shlex
 import shutil
 import subprocess
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
 
 
 class RootFSBuilder:
@@ -67,10 +66,6 @@ class RootFSBuilder:
     EXCLUDED_FILES = {
         ".DS_Store",
     }
-
-    HOST_RUNTIME_CONFIGURATION = Path(
-        "/etc/veles/veles.env"
-    )
 
     HOST_OLLAMA_BINARY = Path(
         "/usr/local/bin/ollama"
@@ -339,10 +334,6 @@ class RootFSBuilder:
                     destination,
                 )
 
-        # --------------------------------------------------
-        # INSTALLER - Copy to rootfs root (/installer)
-        # --------------------------------------------------
-
         installer_src = self.source_root / "installer"
         installer_dst = self.rootfs_root / "installer"
 
@@ -359,25 +350,10 @@ class RootFSBuilder:
                 installer_dst,
             )
 
-            # Make install.sh executable
             install_sh = installer_dst / "install.sh"
+
             if install_sh.exists():
                 install_sh.chmod(0o755)
-
-        # --------------------------------------------------
-        # COPY .venv TO SQUASHFS
-        # --------------------------------------------------
-        
-        venv_src = self.source_root / ".venv"
-        venv_dst = destination_root / ".venv"
-        
-        if venv_src.exists():
-            print(
-                "[ROOTFS] Copying VELES Python virtual environment..."
-            )
-            shutil.copytree(venv_src, venv_dst, dirs_exist_ok=True)
-        else:
-            print("[ROOTFS] WARNING: .venv not found, will create fresh")
 
         return destination_root
 
@@ -426,235 +402,30 @@ class RootFSBuilder:
     # RUNTIME CONFIGURATION
     # --------------------------------------------------
 
-    def _read_host_runtime_configuration(self):
-        """
-        Read VELES host runtime configuration.
-
-        The canonical host configuration is:
-
-            /etc/veles/veles.env
-
-        The file contains shell-style exports such as:
-
-            export VELES_DATABASE_URL=...
-            export PGPASSWORD=...
-
-        Only the required VELES database values are extracted.
-        The file is never executed.
-        """
-
-        configuration_path = (
-            self.HOST_RUNTIME_CONFIGURATION
-        )
-
-        if not configuration_path.is_file():
-            return {}
-
-        values = {}
-
-        for raw_line in configuration_path.read_text(
-            encoding="utf-8"
-        ).splitlines():
-
-            line = raw_line.strip()
-
-            if not line:
-                continue
-
-            if line.startswith("#"):
-                continue
-
-            if line.startswith("export "):
-                line = line[7:].strip()
-
-            if "=" not in line:
-                continue
-
-            name, value = line.split(
-                "=",
-                1,
-            )
-
-            name = name.strip()
-            value = value.strip()
-
-            if name not in {
-                "VELES_DATABASE_URL",
-                "VELES_DATABASE_PASSWORD",
-                "PGPASSWORD",
-                "VELES_OLLAMA_HOST",
-                "VELES_OLLAMA_MODEL",
-            }:
-                continue
-
-            try:
-                parsed = shlex.split(
-                    value,
-                    comments=False,
-                    posix=True,
-                )
-
-                if parsed:
-                    value = parsed[0]
-                else:
-                    value = ""
-
-            except ValueError as exc:
-                raise RuntimeError(
-                    f"Invalid value for {name} in "
-                    f"{configuration_path}."
-                ) from exc
-
-            values[name] = value
-
-        return values
-
-    def _database_configuration(self):
-        """
-        Resolve VELES database configuration.
-
-        Configuration precedence:
-
-        1. VELES_DATABASE_URL environment variable
-        2. /etc/veles/veles.env
-
-        Password precedence:
-
-        1. VELES_DATABASE_PASSWORD environment variable
-        2. PGPASSWORD environment variable
-        3. VELES_DATABASE_PASSWORD from /etc/veles/veles.env
-        4. PGPASSWORD from /etc/veles/veles.env
-        5. Password embedded in VELES_DATABASE_URL
-
-        No database host, port, user, database name,
-        or password is hardcoded.
-        """
-
-        host_configuration = (
-            self._read_host_runtime_configuration()
-        )
-
-        database_url = os.environ.get(
-            "VELES_DATABASE_URL"
-        )
-
-        if not database_url:
-            database_url = host_configuration.get(
-                "VELES_DATABASE_URL"
-            )
-
-        if not database_url:
-            raise RuntimeError(
-                "Required VELES database configuration is missing. "
-                "VELES_DATABASE_URL was not found in the build "
-                "environment or /etc/veles/veles.env."
-            )
-
-        database_password = os.environ.get(
-            "VELES_DATABASE_PASSWORD"
-        )
-
-        if not database_password:
-            database_password = os.environ.get(
-                "PGPASSWORD"
-            )
-
-        if not database_password:
-            database_password = host_configuration.get(
-                "VELES_DATABASE_PASSWORD"
-            )
-
-        if not database_password:
-            database_password = host_configuration.get(
-                "PGPASSWORD"
-            )
-
-        if not database_password:
-            try:
-                parsed_url = urlsplit(
-                    database_url
-                )
-
-                database_password = parsed_url.password
-
-                if database_password:
-                    database_password = unquote(
-                        database_password
-                    )
-
-            except ValueError as exc:
-                raise RuntimeError(
-                    "VELES_DATABASE_URL is invalid."
-                ) from exc
-
-        if not database_password:
-            raise RuntimeError(
-                "VELES_DATABASE_PASSWORD is not configured "
-                "and VELES_DATABASE_URL does not contain "
-                "a database password."
-            )
-
-        return (
-            database_url,
-            database_password,
-        )
-
     def create_runtime_configuration(self):
         """
-        Create the VELES system runtime environment file.
+        Create a generic VELES runtime configuration.
 
-        The host configuration in /etc/veles/veles.env is used
-        as the canonical build configuration when explicit
-        environment variables are not supplied.
+        IMPORTANT:
 
-        VELES_DATABASE_PASSWORD does not need to be exported
-        separately when the password is present in the
-        VELES_DATABASE_URL.
+        No database credentials, host addresses, passwords,
+        usernames, or other build-host-specific values are
+        copied into the final OS image.
+
+        The installer writes the actual runtime configuration
+        onto the installed system.
         """
 
-        (
-            database_url,
-            database_password,
-        ) = self._database_configuration()
+        configuration = """# VELES OS runtime configuration
+#
+# This file is intentionally generic.
+# The VELES installer configures the installed system.
 
-        host_configuration = (
-            self._read_host_runtime_configuration()
-        )
-
-        ollama_host = os.environ.get(
-            "VELES_OLLAMA_HOST"
-        )
-
-        if not ollama_host:
-            ollama_host = host_configuration.get(
-                "VELES_OLLAMA_HOST",
-                "http://127.0.0.1:11434",
-            )
-
-        ollama_model = os.environ.get(
-            "VELES_OLLAMA_MODEL"
-        )
-
-        if not ollama_model:
-            ollama_model = host_configuration.get(
-                "VELES_OLLAMA_MODEL",
-                "qwen2.5:7b",
-            )
-
-        configuration = (
-            "export VELES_DATABASE_URL="
-            + shlex.quote(database_url)
-            + "\n"
-            + "export PGPASSWORD="
-            + shlex.quote(database_password)
-            + "\n"
-            + "export VELES_OLLAMA_HOST="
-            + shlex.quote(ollama_host)
-            + "\n"
-            + "export VELES_OLLAMA_MODEL="
-            + shlex.quote(ollama_model)
-            + "\n"
-        )
+export VELES_DATABASE_URL=""
+export PGPASSWORD=""
+export VELES_OLLAMA_HOST="http://127.0.0.1:11434"
+export VELES_OLLAMA_MODEL="qwen2.5:7b"
+"""
 
         configuration_path = (
             self.rootfs_root
@@ -675,6 +446,10 @@ class RootFSBuilder:
 
         configuration_path.chmod(0o600)
 
+        print(
+            "[ROOTFS] Generic runtime configuration created."
+        )
+
         return configuration_path
 
     # --------------------------------------------------
@@ -685,26 +460,11 @@ class RootFSBuilder:
         """Return the Python interpreter inside the rootfs."""
 
         candidates = (
-            self.rootfs_root
-            / "usr"
-            / "bin"
-            / "python3",
-            self.rootfs_root
-            / "usr"
-            / "bin"
-            / "python3.14",
-            self.rootfs_root
-            / "usr"
-            / "bin"
-            / "python3.13",
-            self.rootfs_root
-            / "usr"
-            / "bin"
-            / "python3.12",
-            self.rootfs_root
-            / "usr"
-            / "bin"
-            / "python3.11",
+            self.rootfs_root / "usr" / "bin" / "python3",
+            self.rootfs_root / "usr" / "bin" / "python3.14",
+            self.rootfs_root / "usr" / "bin" / "python3.13",
+            self.rootfs_root / "usr" / "bin" / "python3.12",
+            self.rootfs_root / "usr" / "bin" / "python3.11",
         )
 
         for candidate in candidates:
@@ -717,15 +477,7 @@ class RootFSBuilder:
         )
 
     def create_python_environment(self):
-        """
-        Create a standalone VELES Python environment.
-
-        --copies is intentional.
-
-        The final VELES OS must not depend on symlink chains
-        created against the build host. Python and its launcher
-        are copied into the target rootfs.
-        """
+        """Create a standalone VELES Python environment."""
 
         python = self._rootfs_python()
 
@@ -836,25 +588,13 @@ echo
 
 echo "[INIT] Starting VELES OS..."
 
-# --------------------------------------------------
-# BASIC ENVIRONMENT
-# --------------------------------------------------
-
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-
-# --------------------------------------------------
-# LOOPBACK
-# --------------------------------------------------
 
 echo "[INIT] Preparing loopback interface..."
 
 if command -v ip >/dev/null 2>&1; then
     ip link set lo up || true
 fi
-
-# --------------------------------------------------
-# BASIC WRITABLE RUNTIME FILESYSTEMS
-# --------------------------------------------------
 
 echo "[INIT] Preparing writable /run..."
 
@@ -880,10 +620,6 @@ fi
 
 chmod 1777 /tmp
 
-# --------------------------------------------------
-# DEV / PROC / SYS
-# --------------------------------------------------
-
 echo "[INIT] Preparing kernel filesystems..."
 
 mkdir -p /dev /proc /sys
@@ -900,10 +636,6 @@ if ! mountpoint -q /dev 2>/dev/null; then
     mount -t devtmpfs devtmpfs /dev || true
 fi
 
-# --------------------------------------------------
-# OLLAMA WRITABLE STORAGE
-# --------------------------------------------------
-
 echo "[INIT] Preparing writable Ollama storage..."
 
 mkdir -p /var/lib/ollama
@@ -914,12 +646,7 @@ if ! mountpoint -q /var/lib/ollama 2>/dev/null; then
         tmpfs /var/lib/ollama
 fi
 
-# --------------------------------------------------
-# OLLAMA HOME
-# --------------------------------------------------
-
 export HOME="/run/veles/ollama-home"
-
 mkdir -p "${HOME}"
 
 export OLLAMA_MODELS="/var/lib/ollama"
@@ -927,18 +654,8 @@ export OLLAMA_MODELS="/var/lib/ollama"
 echo "[INIT] Ollama HOME: ${HOME}"
 echo "[INIT] Ollama storage: ${OLLAMA_MODELS}"
 
-# --------------------------------------------------
-# VELES CONFIGURATION
-# --------------------------------------------------
-
 if [ ! -f /etc/veles/veles.env ]; then
-
     echo "[INIT] ERROR: VELES runtime configuration not found."
-    echo
-    echo "[INIT] Expected:"
-    echo "  /etc/veles/veles.env"
-    echo
-
     exec /bin/sh
 fi
 
@@ -949,27 +666,18 @@ set -a
 set +a
 
 if [ -z "${VELES_DATABASE_URL:-}" ]; then
-
     echo "[INIT] ERROR: VELES_DATABASE_URL is not configured."
-    echo
-
+    echo "[INIT] Configure /etc/veles/veles.env before starting VELES."
     exec /bin/sh
 fi
 
 echo "[INIT] VELES runtime configuration loaded."
 
-# --------------------------------------------------
-# OLLAMA
-# --------------------------------------------------
-
 if [ -x /usr/local/bin/ollama ]; then
 
     echo "[INIT] Starting Ollama AI runtime..."
 
-    export HOME="/run/veles/ollama-home"
-    export OLLAMA_MODELS="/var/lib/ollama"
-
-    /usr/local/bin/ollama serve \
+    /usr/local/bin/ollama serve \\
         >/run/veles/ollama.log 2>&1 &
 
     OLLAMA_PID=$!
@@ -996,36 +704,16 @@ if [ -x /usr/local/bin/ollama ]; then
                 break
             fi
 
-        elif command -v python3 >/dev/null 2>&1; then
-
-            if python3 -c \\
-                'import urllib.request; urllib.request.urlopen(
-                    "http://127.0.0.1:11434/api/tags",
-                    timeout=1
-                )' \\
-                >/dev/null 2>&1; then
-
-                OLLAMA_READY=1
-                break
-            fi
         fi
 
         sleep 1
     done
 
     if [ "${OLLAMA_READY}" -eq 1 ]; then
-
         echo "[INIT] Ollama AI runtime: READY"
-
     else
-
         echo "[INIT] Ollama AI runtime: OFFLINE"
         echo "[INIT] VELES will continue without local AI."
-
-        if [ -f /run/veles/ollama.log ]; then
-            echo "[INIT] Ollama log:"
-            cat /run/veles/ollama.log
-        fi
     fi
 
 else
@@ -1035,20 +723,10 @@ else
 
 fi
 
-# --------------------------------------------------
-# VELES RUNTIME
-# --------------------------------------------------
-
 echo "[INIT] Starting VELES Python runtime..."
 
 if [ ! -x /opt/veles/.venv/bin/python ]; then
-
     echo "[INIT] ERROR: VELES Python runtime is missing."
-    echo
-    echo "Expected:"
-    echo "  /opt/veles/.venv/bin/python"
-    echo
-
     exec /bin/sh
 fi
 
@@ -1066,12 +744,7 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
     # --------------------------------------------------
 
     def validate_runtime(self):
-        """
-        Validate that the runtime files are physically present.
-
-        This deliberately checks the actual executable targets,
-        not only the existence of symlinks.
-        """
+        """Validate physical VELES runtime files."""
 
         python = (
             self.rootfs_root
@@ -1139,7 +812,7 @@ exec /opt/veles/.venv/bin/python /opt/veles/main.py
 
         if not environment.is_file():
             raise RuntimeError(
-                "VELES runtime configuration is not a regular file: "
+                f"VELES runtime configuration is not a regular file: "
                 f"{environment}"
             )
 
