@@ -13,8 +13,8 @@ import os
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from veles.core.autonomous import run_autonomous_check
-from veles.tts.speak import speak
+from core.autonomous import run_autonomous_check
+from services.voice.speak import speak
 
 if __name__ == "__main__":
     issues = run_autonomous_check()
